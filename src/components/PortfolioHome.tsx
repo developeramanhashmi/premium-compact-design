@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Header } from "./Header";
 import { Footer } from "./Footer";
-import { PORTFOLIO_DATA, Project } from "./portfolioData";
+import { PORTFOLIO_DATA, Project } from "@/data/portfolioData";
 import { 
   Github, 
   ExternalLink, 
