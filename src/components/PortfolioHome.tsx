@@ -4,19 +4,16 @@ import { Footer } from "./Footer";
 import { PORTFOLIO_DATA, Project } from "@/data/portfolioData";
 import { 
   Github, 
-  ExternalLink, 
   ArrowUpRight, 
   Award, 
   GraduationCap, 
   Briefcase, 
   Mail, 
-  Send, 
   Sparkles, 
+  Terminal, 
+  Layers,
   CheckCircle2,
-  Terminal,
-  Database,
-  BarChart3,
-  Layers
+  ExternalLink
 } from "lucide-react";
 
 export function PortfolioHome() {
@@ -30,139 +27,163 @@ export function PortfolioHome() {
     : PORTFOLIO_DATA.projects.filter(p => p.tag.toLowerCase().includes(activeFilter.toLowerCase()));
 
   return (
-    <div className="min-h-screen bg-background text-foreground selection:bg-primary/20 selection:text-primary">
+    <div id="top" className="min-h-screen bg-neutral-950 text-neutral-100 selection:bg-primary/20 selection:text-primary">
       <Header />
 
-      {/* Hero Section */}
-      <section className="relative pt-20 pb-16 md:pt-28 md:pb-24 overflow-hidden border-b border-border/40">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[38rem] h-[38rem] bg-primary/10 rounded-full blur-3xl pointer-events-none" />
+      {/* ================= HERO SECTION (V10 PREMIUM STYLE) ================= */}
+      <section className="relative pt-28 pb-20 md:pt-36 md:pb-28 overflow-hidden border-b border-white/5">
+        {/* Ambient Glows */}
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[42rem] h-[26rem] bg-gradient-to-tr from-primary/20 via-indigo-500/15 to-cyan-500/10 rounded-full blur-[120px] pointer-events-none" />
+        <div className="absolute top-10 left-10 size-72 bg-primary/10 rounded-full blur-[90px] pointer-events-none" />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
           <div className="max-w-3xl">
-            {/* Status Beacon */}
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-primary/30 bg-primary/10 text-primary text-xs font-mono font-medium mb-6">
-              <span className="size-2 rounded-full bg-primary animate-pulse" />
+            {/* Status Beacon Pill */}
+            <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full border border-primary/30 bg-primary/10 text-primary text-xs font-mono font-medium mb-6 backdrop-blur-md">
+              <span className="relative flex size-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75" />
+                <span className="relative inline-flex rounded-full size-2 bg-primary" />
+              </span>
               <span>{PORTFOLIO_DATA.profile.badge}</span>
             </div>
 
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-display font-extrabold tracking-tight leading-[1.1]">
-              Hi, I'm <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-indigo-400 to-cyan-400">Aman Alam</span>
+            {/* Headline */}
+            <h1 className="text-4xl sm:text-6xl md:text-7xl font-display font-extrabold tracking-tight leading-[1.08]">
+              Hi, I'm <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-neutral-200 to-neutral-400">Aman Alam</span>
+              <br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-indigo-400 to-cyan-400">
+                Data Analyst
+              </span>
             </h1>
 
-            <p className="mt-4 text-xl sm:text-2xl text-muted-foreground font-medium">
-              {PORTFOLIO_DATA.profile.title}
-            </p>
-
-            <p className="mt-4 text-base sm:text-lg text-muted-foreground/90 leading-relaxed max-w-2xl">
+            <p className="mt-5 text-lg sm:text-xl text-neutral-400 font-normal leading-relaxed max-w-2xl">
               {PORTFOLIO_DATA.profile.bio}
             </p>
 
-            <div className="mt-8 flex flex-wrap items-center gap-3">
+            {/* V10 Style Action Buttons */}
+            <div className="mt-9 flex flex-wrap items-center gap-3.5">
+              {/* Primary Glowing Action Pill */}
               <a
                 href="#projects"
-                className="inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground px-6 py-3 text-sm font-semibold hover:brightness-110 active:scale-95 transition shadow-sm"
+                className="group relative inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-primary via-indigo-500 to-cyan-400 text-neutral-950 px-6 py-3.5 text-xs sm:text-sm font-bold shadow-[0_0_25px_rgba(56,189,248,0.35)] hover:shadow-[0_0_35px_rgba(56,189,248,0.6)] hover:scale-[1.02] active:scale-95 transition-all duration-200"
               >
-                <span>View Projects</span>
-                <ArrowUpRight className="size-4" />
+                <span>Explore Work</span>
+                <ArrowUpRight className="size-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
               </a>
 
+              {/* Frosted Glass Secondary Pill */}
               <a
                 href="#contact"
-                className="inline-flex items-center gap-2 rounded-full border border-border/80 bg-card/80 px-6 py-3 text-sm font-semibold hover:border-primary/50 hover:bg-accent transition"
+                className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-neutral-900/60 backdrop-blur-xl px-6 py-3.5 text-xs sm:text-sm font-semibold text-neutral-200 hover:border-white/30 hover:bg-neutral-800/80 active:scale-95 transition-all shadow-md"
               >
+                <Mail className="size-4 text-neutral-400" />
                 <span>Get In Touch</span>
               </a>
 
+              {/* GitHub Pill */}
               <a
                 href={PORTFOLIO_DATA.profile.github}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="p-3 rounded-full border border-border/80 bg-card/80 hover:bg-accent hover:border-primary/50 text-muted-foreground hover:text-foreground transition"
+                className="p-3.5 rounded-full border border-white/15 bg-neutral-900/60 backdrop-blur-xl hover:border-white/30 hover:bg-neutral-800/80 text-neutral-400 hover:text-white active:scale-95 transition-all"
                 aria-label="GitHub"
               >
                 <Github className="size-4" />
               </a>
             </div>
+
+            {/* Quick Specs / Stat Badges */}
+            <div className="mt-10 pt-8 border-t border-white/10 flex flex-wrap items-center gap-6 text-xs text-neutral-400 font-mono">
+              <span className="flex items-center gap-2">
+                <span className="size-1.5 rounded-full bg-emerald-400" /> IIT Madras BS Scholar
+              </span>
+              <span className="flex items-center gap-2">
+                <span className="size-1.5 rounded-full bg-cyan-400" /> MANUU CS Diploma
+              </span>
+              <span className="flex items-center gap-2">
+                <span className="size-1.5 rounded-full bg-indigo-400" /> Python · SQL · Power BI
+              </span>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* About & Education / Experience Grid */}
-      <section id="about" className="py-20 border-b border-border/40">
+      {/* ================= ABOUT & EDUCATION / EXPERIENCE ================= */}
+      <section id="about" className="py-20 border-b border-white/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between mb-10">
-            <div>
-              <p className="text-xs uppercase tracking-widest text-primary font-mono font-semibold">Background</p>
-              <h2 className="text-2xl sm:text-3xl font-display font-bold tracking-tight mt-1">Education & Experience</h2>
-            </div>
+          <div className="mb-12">
+            <p className="text-xs uppercase tracking-widest text-primary font-mono font-semibold">Background</p>
+            <h2 className="text-2xl sm:text-4xl font-display font-bold tracking-tight mt-1 text-white">
+              Education & Journey
+            </h2>
           </div>
 
           <div className="grid gap-6 md:grid-cols-2">
-            {/* Education Cards */}
+            {/* Education */}
             <div className="space-y-4">
-              <h3 className="text-sm font-mono uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+              <h3 className="text-xs font-mono uppercase tracking-wider text-neutral-400 flex items-center gap-2">
                 <GraduationCap className="size-4 text-primary" />
                 <span>Formal Education</span>
               </h3>
-
-              {PORTFOLIO_DATA.educationAndExperience.filter(e => e.type === "education").map(edu => (
-                <div key={edu.id} className="p-5 rounded-2xl border border-border/80 bg-card/50 hover:border-primary/40 transition">
-                  <div className="flex items-start justify-between gap-2">
-                    <h4 className="font-semibold text-base text-foreground">{edu.title}</h4>
-                    {edu.grade && (
-                      <span className="text-xs font-mono font-semibold px-2.5 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20 shrink-0">
-                        {edu.grade}
+              {PORTFOLIO_DATA.educationAndExperience
+                .filter(item => item.type === "education")
+                .map(item => (
+                  <div key={item.id} className="rounded-2xl border border-white/10 bg-neutral-900/40 p-6 backdrop-blur-sm hover:border-white/20 transition">
+                    <span className="text-xs font-mono text-primary font-semibold">{item.period}</span>
+                    <h4 className="text-base font-bold text-white mt-1">{item.title}</h4>
+                    <p className="text-sm text-neutral-400 mt-0.5">{item.organization}</p>
+                    <p className="text-xs text-neutral-400 mt-2 leading-relaxed">{item.desc}</p>
+                    {item.grade && (
+                      <span className="inline-block mt-3 text-xs font-mono px-2 py-0.5 rounded-md bg-white/5 border border-white/10 text-neutral-300">
+                        {item.grade}
                       </span>
                     )}
                   </div>
-                  <p className="text-xs font-medium text-muted-foreground mt-1">{edu.organization}</p>
-                  <p className="text-xs font-mono text-primary/80 mt-0.5">{edu.period}</p>
-                  <p className="text-sm text-muted-foreground mt-2 leading-relaxed">{edu.desc}</p>
-                </div>
-              ))}
+                ))}
             </div>
 
-            {/* Experience Cards */}
+            {/* Experience */}
             <div className="space-y-4">
-              <h3 className="text-sm font-mono uppercase tracking-wider text-muted-foreground flex items-center gap-2">
-                <Briefcase className="size-4 text-primary" />
-                <span>Internships & Practice</span>
+              <h3 className="text-xs font-mono uppercase tracking-wider text-neutral-400 flex items-center gap-2">
+                <Briefcase className="size-4 text-cyan-400" />
+                <span>Industry Experience</span>
               </h3>
-
-              {PORTFOLIO_DATA.educationAndExperience.filter(e => e.type === "experience").map(exp => (
-                <div key={exp.id} className="p-5 rounded-2xl border border-border/80 bg-card/50 hover:border-primary/40 transition">
-                  <div className="flex items-start justify-between gap-2">
-                    <h4 className="font-semibold text-base text-foreground">{exp.title}</h4>
-                    <span className="text-xs font-mono text-primary font-semibold">{exp.period}</span>
+              {PORTFOLIO_DATA.educationAndExperience
+                .filter(item => item.type === "experience")
+                .map(item => (
+                  <div key={item.id} className="rounded-2xl border border-white/10 bg-neutral-900/40 p-6 backdrop-blur-sm hover:border-white/20 transition">
+                    <span className="text-xs font-mono text-cyan-400 font-semibold">{item.period}</span>
+                    <h4 className="text-base font-bold text-white mt-1">{item.title}</h4>
+                    <p className="text-sm text-neutral-400 mt-0.5">{item.organization}</p>
+                    <p className="text-xs text-neutral-400 mt-2 leading-relaxed">{item.desc}</p>
                   </div>
-                  <p className="text-xs font-medium text-muted-foreground mt-1">{exp.organization}</p>
-                  <p className="text-sm text-muted-foreground mt-2 leading-relaxed">{exp.desc}</p>
-                </div>
-              ))}
+                ))}
             </div>
           </div>
         </div>
       </section>
 
-      {/* Compact Projects Showcase */}
-      <section id="projects" className="py-20 border-b border-border/40">
+      {/* ================= PROJECTS GRID ================= */}
+      <section id="projects" className="py-20 border-b border-white/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10">
             <div>
               <p className="text-xs uppercase tracking-widest text-primary font-mono font-semibold">Portfolio</p>
-              <h2 className="text-2xl sm:text-3xl font-display font-bold tracking-tight mt-1">Featured Projects</h2>
+              <h2 className="text-2xl sm:text-4xl font-display font-bold tracking-tight mt-1 text-white">
+                Featured Projects
+              </h2>
             </div>
 
             {/* Filter Pills */}
-            <div className="flex flex-wrap items-center gap-1.5 p-1 rounded-full border border-border/80 bg-card/80 backdrop-blur-md">
+            <div className="flex flex-wrap gap-1.5 p-1 rounded-full border border-white/10 bg-neutral-900/60 backdrop-blur-md">
               {categories.map(cat => (
                 <button
                   key={cat}
                   onClick={() => setActiveFilter(cat)}
-                  className={`px-3.5 py-1 text-xs font-medium rounded-full transition-all ${
+                  className={`px-3 py-1 text-xs rounded-full font-medium transition ${
                     activeFilter === cat 
-                      ? "bg-primary text-primary-foreground shadow-xs" 
-                      : "text-muted-foreground hover:text-foreground hover:bg-accent/60"
+                      ? "bg-primary text-neutral-950 font-semibold" 
+                      : "text-neutral-400 hover:text-white"
                   }`}
                 >
                   {cat}
@@ -171,57 +192,44 @@ export function PortfolioHome() {
             </div>
           </div>
 
-          {/* Compact Project Grid */}
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {filteredProjects.map(proj => (
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {filteredProjects.map(project => (
               <div 
-                key={proj.id}
-                className="group relative flex flex-col justify-between p-6 rounded-2xl border border-border/80 bg-card/50 hover:bg-card hover:border-primary/50 transition-all duration-300 shadow-sm hover:shadow-lg hover:shadow-primary/5"
+                key={project.id} 
+                className="group rounded-2xl border border-white/10 bg-neutral-900/40 p-6 backdrop-blur-md hover:border-primary/40 hover:-translate-y-1 transition-all duration-200 flex flex-col justify-between"
               >
                 <div>
-                  <div className="flex items-center justify-between gap-2 mb-3">
-                    <span className="text-xs font-mono uppercase tracking-wider px-2 py-0.5 rounded-md bg-primary/10 text-primary border border-primary/20">
-                      {proj.tag}
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-mono uppercase tracking-wider text-primary font-semibold">
+                      {project.tag}
                     </span>
-                    <span className="text-xs font-mono text-muted-foreground">#{proj.id}</span>
+                    <span className="text-xs font-mono text-neutral-500">#{project.id}</span>
                   </div>
-
-                  <h3 className="text-lg font-semibold text-foreground group-hover:text-primary transition-colors">
-                    {proj.title}
+                  <h3 className="text-lg font-bold text-white mt-2 group-hover:text-primary transition-colors">
+                    {project.title}
                   </h3>
-
-                  <p className="mt-2 text-xs sm:text-sm text-muted-foreground leading-relaxed line-clamp-3">
-                    {proj.desc}
+                  <p className="text-xs text-neutral-400 mt-2 leading-relaxed">
+                    {project.desc}
                   </p>
-
-                  {/* Tech stack badges */}
-                  <div className="mt-4 flex flex-wrap gap-1.5">
-                    {proj.tech.map(t => (
-                      <span key={t} className="text-[11px] font-mono px-2 py-0.5 rounded-full bg-accent/80 text-foreground/80 border border-border/60">
+                  <div className="flex flex-wrap gap-1.5 mt-4">
+                    {project.tech.map(t => (
+                      <span key={t} className="text-xs px-2 py-0.5 rounded-full bg-white/5 border border-white/10 text-neutral-300 font-mono">
                         {t}
                       </span>
                     ))}
                   </div>
                 </div>
 
-                <div className="mt-6 pt-4 border-t border-border/40 flex items-center justify-between">
-                  <span className="text-xs font-medium text-muted-foreground">
-                    {proj.features[0] || "Production ready"}
-                  </span>
-                  
-                  {proj.href && proj.href !== "#" ? (
-                    <a
-                      href={proj.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline"
-                    >
-                      <span>{proj.cta}</span>
-                      <ArrowUpRight className="size-3" />
-                    </a>
-                  ) : (
-                    <span className="text-xs font-mono text-muted-foreground">Internal Demo</span>
-                  )}
+                <div className="mt-6 pt-4 border-t border-white/5 flex items-center justify-between">
+                  <a
+                    href={project.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-neutral-300 hover:text-primary transition"
+                  >
+                    <span>{project.cta}</span>
+                    <ArrowUpRight className="size-3.5" />
+                  </a>
                 </div>
               </div>
             ))}
@@ -229,37 +237,50 @@ export function PortfolioHome() {
         </div>
       </section>
 
-      {/* Skills & Arsenal Section */}
-      <section id="skills" className="py-20 border-b border-border/40">
+      {/* ================= SKILLS ================= */}
+      <section id="skills" className="py-20 border-b border-white/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="mb-10">
-            <p className="text-xs uppercase tracking-widest text-primary font-mono font-semibold">Tech Arsenal</p>
-            <h2 className="text-2xl sm:text-3xl font-display font-bold tracking-tight mt-1">Core Competencies</h2>
+            <p className="text-xs uppercase tracking-widest text-primary font-mono font-semibold">Capabilities</p>
+            <h2 className="text-2xl sm:text-4xl font-display font-bold tracking-tight mt-1 text-white">
+              Skills & Tech Stack
+            </h2>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3.5">
-            {PORTFOLIO_DATA.skills.map(skill => (
-              <div 
-                key={skill.name}
-                className="p-4 rounded-xl border border-border/80 bg-card/40 hover:border-primary/40 hover:bg-card transition flex items-center justify-between"
-              >
-                <div>
-                  <h4 className="text-sm font-semibold text-foreground">{skill.name}</h4>
-                  <span className="text-[11px] font-mono text-muted-foreground">{skill.category}</span>
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {PORTFOLIO_DATA.skillCategories.map(cat => (
+              <div key={cat.title} className="rounded-2xl border border-white/10 bg-neutral-900/40 p-6 backdrop-blur-sm">
+                <h3 className="text-sm font-bold text-white mb-4 font-mono">{cat.title}</h3>
+                <div className="space-y-3">
+                  {cat.skills.map(skill => (
+                    <div key={skill.name}>
+                      <div className="flex justify-between text-xs mb-1">
+                        <span className="text-neutral-300">{skill.name}</span>
+                        <span className="text-neutral-500 font-mono">{skill.level}%</span>
+                      </div>
+                      <div className="h-1.5 rounded-full bg-white/10 overflow-hidden">
+                        <div 
+                          className="h-full rounded-full bg-gradient-to-r from-primary to-cyan-400"
+                          style={{ width: `${skill.level}%` }}
+                        />
+                      </div>
+                    </div>
+                  ))}
                 </div>
-                <span className="text-xs font-mono font-bold text-primary">{skill.level}%</span>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Certificates Section */}
-      <section id="certificates" className="py-20 border-b border-border/40">
+      {/* ================= CERTIFICATES ================= */}
+      <section id="certificates" className="py-20 border-b border-white/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="mb-10">
-            <p className="text-xs uppercase tracking-widest text-primary font-mono font-semibold">Verification</p>
-            <h2 className="text-2xl sm:text-3xl font-display font-bold tracking-tight mt-1">Certificates & Credentials</h2>
+            <p className="text-xs uppercase tracking-widest text-primary font-mono font-semibold">Credentials</p>
+            <h2 className="text-2xl sm:text-4xl font-display font-bold tracking-tight mt-1 text-white">
+              Certifications
+            </h2>
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -269,114 +290,89 @@ export function PortfolioHome() {
                 href={cert.href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group p-5 rounded-2xl border border-border/80 bg-card/40 hover:border-primary/50 hover:bg-card transition flex flex-col justify-between"
+                className="group rounded-2xl border border-white/10 bg-neutral-900/40 p-5 backdrop-blur-sm hover:border-primary/40 transition flex items-start gap-3.5"
               >
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs font-mono text-primary font-medium">{cert.tag}</span>
-                    <ExternalLink className="size-3.5 text-muted-foreground group-hover:text-primary transition-colors" />
-                  </div>
-                  <h4 className="text-base font-semibold text-foreground group-hover:text-primary transition-colors">
+                <div className="p-2 rounded-xl bg-primary/10 text-primary border border-primary/20 shrink-0">
+                  <Award className="size-5" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <span className="text-[10px] font-mono uppercase tracking-wider text-primary font-semibold">
+                    {cert.tag}
+                  </span>
+                  <h4 className="text-sm font-bold text-white mt-0.5 group-hover:text-primary transition truncate">
                     {cert.name}
                   </h4>
                   {cert.desc && (
-                    <p className="mt-1 text-xs text-muted-foreground leading-relaxed">
-                      {cert.desc}
-                    </p>
+                    <p className="text-xs text-neutral-400 mt-1 line-clamp-2">{cert.desc}</p>
                   )}
                 </div>
-                <p className="mt-4 text-xs font-mono text-primary/80 group-hover:underline">
-                  View Drive Credential →
-                </p>
+                <ArrowUpRight className="size-4 text-neutral-500 group-hover:text-primary group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition shrink-0" />
               </a>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Contact Section */}
+      {/* ================= CONTACT SECTION ================= */}
       <section id="contact" className="py-20">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-10">
-            <p className="text-xs uppercase tracking-widest text-primary font-mono font-semibold">Get In Touch</p>
-            <h2 className="text-3xl font-display font-bold tracking-tight mt-1">Send a Message</h2>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Interested in hiring, consulting, or project collaboration? Drop a line below.
-            </p>
-          </div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="rounded-3xl border border-white/15 bg-neutral-900/60 p-8 md:p-12 backdrop-blur-xl relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-96 h-96 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
 
-          <div className="p-8 rounded-3xl border border-border/80 bg-card/60 backdrop-blur-md shadow-xl">
-            {formSent ? (
-              <div className="text-center py-8">
-                <CheckCircle2 className="size-12 text-primary mx-auto mb-3" />
-                <h3 className="text-lg font-semibold">Message Received!</h3>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Thank you! Aman will review and get back to you shortly.
-                </p>
-                <button
-                  onClick={() => setFormSent(false)}
-                  className="mt-6 text-xs text-primary font-mono hover:underline"
-                >
-                  Send another message
-                </button>
-              </div>
-            ) : (
+            <div className="max-w-2xl">
+              <p className="text-xs uppercase tracking-widest text-primary font-mono font-semibold">Let's connect</p>
+              <h2 className="text-3xl sm:text-4xl font-display font-bold tracking-tight mt-1 text-white">
+                Interested in working together?
+              </h2>
+              <p className="text-sm text-neutral-400 mt-2">
+                Drop me a message directly at{" "}
+                <a href="mailto:amanalam0353@gmail.com" className="text-primary font-medium hover:underline">
+                  amanalam0353@gmail.com
+                </a>
+              </p>
+
               <form 
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  setFormSent(true);
-                }} 
-                className="space-y-4"
+                onSubmit={(e) => { e.preventDefault(); setFormSent(true); }}
+                className="mt-8 space-y-4"
               >
                 <div className="grid gap-4 sm:grid-cols-2">
-                  <div>
-                    <label className="block text-xs font-mono text-muted-foreground mb-1">Your Name</label>
-                    <input 
-                      type="text" 
-                      required 
-                      placeholder="e.g. Rahul Sharma" 
-                      className="w-full px-4 py-2.5 text-sm rounded-xl border border-border bg-background focus:border-primary focus:outline-none transition"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-mono text-muted-foreground mb-1">Your Email</label>
-                    <input 
-                      type="email" 
-                      required 
-                      placeholder="e.g. rahul@example.com" 
-                      className="w-full px-4 py-2.5 text-sm rounded-xl border border-border bg-background focus:border-primary focus:outline-none transition"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-mono text-muted-foreground mb-1">Subject</label>
-                  <input 
-                    type="text" 
-                    placeholder="Project Inquiry / Job Opportunity" 
-                    className="w-full px-4 py-2.5 text-sm rounded-xl border border-border bg-background focus:border-primary focus:outline-none transition"
+                  <input
+                    type="text"
+                    required
+                    placeholder="Your Name"
+                    className="w-full rounded-xl border border-white/10 bg-neutral-950/60 px-4 py-3 text-xs sm:text-sm text-white placeholder:text-neutral-500 focus:border-primary focus:outline-hidden"
+                  />
+                  <input
+                    type="email"
+                    required
+                    placeholder="Your Email"
+                    className="w-full rounded-xl border border-white/10 bg-neutral-950/60 px-4 py-3 text-xs sm:text-sm text-white placeholder:text-neutral-500 focus:border-primary focus:outline-hidden"
                   />
                 </div>
-
-                <div>
-                  <label className="block text-xs font-mono text-muted-foreground mb-1">Message</label>
-                  <textarea 
-                    rows={4} 
-                    required 
-                    placeholder="Tell me about your project, timeline, and requirements..." 
-                    className="w-full px-4 py-2.5 text-sm rounded-xl border border-border bg-background focus:border-primary focus:outline-none transition resize-none"
-                  />
-                </div>
-
+                <textarea
+                  required
+                  rows={4}
+                  placeholder="Tell me about your project, team or opening..."
+                  className="w-full rounded-xl border border-white/10 bg-neutral-950/60 px-4 py-3 text-xs sm:text-sm text-white placeholder:text-neutral-500 focus:border-primary focus:outline-hidden"
+                />
                 <button
                   type="submit"
-                  className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-primary text-primary-foreground py-3 text-sm font-semibold hover:brightness-110 active:scale-[0.99] transition shadow-md"
+                  className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-primary via-indigo-500 to-cyan-400 px-6 py-3.5 text-xs sm:text-sm font-bold text-neutral-950 shadow-lg hover:shadow-primary/40 active:scale-95 transition"
                 >
-                  <Send className="size-4" />
-                  <span>Send Message</span>
+                  {formSent ? (
+                    <>
+                      <CheckCircle2 className="size-4" />
+                      <span>Message Sent!</span>
+                    </>
+                  ) : (
+                    <>
+                      <Mail className="size-4" />
+                      <span>Send Message</span>
+                    </>
+                  )}
                 </button>
               </form>
-            )}
+            </div>
           </div>
         </div>
       </section>
