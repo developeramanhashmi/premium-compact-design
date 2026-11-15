@@ -9,11 +9,7 @@ import {
   GraduationCap, 
   Briefcase, 
   Mail, 
-  Sparkles, 
-  Terminal, 
-  Layers,
-  CheckCircle2,
-  ExternalLink
+  CheckCircle2
 } from "lucide-react";
 
 export function PortfolioHome() {
@@ -247,25 +243,24 @@ export function PortfolioHome() {
             </h2>
           </div>
 
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {PORTFOLIO_DATA.skillCategories.map(cat => (
-              <div key={cat.title} className="rounded-2xl border border-white/10 bg-neutral-900/40 p-6 backdrop-blur-sm">
-                <h3 className="text-sm font-bold text-white mb-4 font-mono">{cat.title}</h3>
-                <div className="space-y-3">
-                  {cat.skills.map(skill => (
-                    <div key={skill.name}>
-                      <div className="flex justify-between text-xs mb-1">
-                        <span className="text-neutral-300">{skill.name}</span>
-                        <span className="text-neutral-500 font-mono">{skill.level}%</span>
-                      </div>
-                      <div className="h-1.5 rounded-full bg-white/10 overflow-hidden">
-                        <div 
-                          className="h-full rounded-full bg-gradient-to-r from-primary to-cyan-400"
-                          style={{ width: `${skill.level}%` }}
-                        />
-                      </div>
-                    </div>
-                  ))}
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {PORTFOLIO_DATA.skills.map(skill => (
+              <div key={skill.name} className="rounded-2xl border border-white/10 bg-neutral-900/40 p-5 backdrop-blur-sm hover:border-white/20 transition">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-sm font-semibold text-white">{skill.name}</span>
+                  <span className="text-xs font-mono text-primary px-2 py-0.5 rounded-full bg-primary/10 border border-primary/20">
+                    {skill.category}
+                  </span>
+                </div>
+                <div className="flex justify-between text-xs mb-1 text-neutral-400 font-mono">
+                  <span>Proficiency</span>
+                  <span>{skill.level}%</span>
+                </div>
+                <div className="h-1.5 rounded-full bg-white/10 overflow-hidden">
+                  <div 
+                    className="h-full rounded-full bg-gradient-to-r from-primary via-indigo-500 to-cyan-400"
+                    style={{ width: `${skill.level}%` }}
+                  />
                 </div>
               </div>
             ))}
