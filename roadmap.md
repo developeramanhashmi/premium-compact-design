@@ -1,0 +1,4 @@
+- [x] Build polished public portfolio home with compact visuals and working category filters.
+- [x] Build compact admin preview with section navigation and local UI interactions.
+- [x] Update brand styling and route metadata for all content routes.
+- [x] Verify routing, tests, current build diagnostics, and end-to-end browser states.
