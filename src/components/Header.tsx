@@ -51,7 +51,7 @@ export function Header() {
               {/* Circular Portrait with soft glowing ring */}
               <div className="relative size-7 rounded-full overflow-hidden border border-primary/50 shadow-[0_0_12px_rgba(56,189,248,0.35)] ring-1 ring-white/20 group-hover:scale-105 transition-transform duration-200">
                 <img 
-                  src={portraitAsset.url} 
+                  src="/favicon.png" 
                   alt="Aman" 
                   className="size-full object-cover object-top" 
                 />
