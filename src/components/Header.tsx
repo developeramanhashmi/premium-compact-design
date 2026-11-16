@@ -116,15 +116,15 @@ export function Header() {
       </header>
 
       {/* ================= MOBILE FLOATING BOTTOM DOCK ================= */}
-      <div className="md:hidden fixed bottom-5 inset-x-0 z-50 flex justify-center px-4 pointer-events-none">
-        <div className="pointer-events-auto relative flex items-center justify-between gap-5 rounded-full border border-white/15 bg-neutral-950/85 backdrop-blur-2xl px-6 py-3 shadow-[0_10px_40px_rgba(0,0,0,0.8)]">
+      <div className="md:hidden fixed bottom-3.5 inset-x-0 z-50 flex justify-center px-4 pointer-events-none">
+        <div className="pointer-events-auto relative flex items-center justify-between gap-2 rounded-full border border-white/10 bg-neutral-950/80 backdrop-blur-xl px-4 py-1.5 shadow-[0_8px_30px_rgba(0,0,0,0.7)]">
           {/* Home */}
           <a
             href="#top"
             className={`p-2 rounded-full transition ${activeSection === "home" ? "text-primary bg-primary/15" : "text-neutral-400 hover:text-white"}`}
             aria-label="Home"
           >
-            <Home className="size-5" />
+            <Home className="size-4" />
           </a>
 
           {/* About */}
@@ -133,19 +133,19 @@ export function Header() {
             className={`p-2 rounded-full transition ${activeSection === "about" ? "text-primary bg-primary/15" : "text-neutral-400 hover:text-white"}`}
             aria-label="About"
           >
-            <User className="size-5" />
+            <User className="size-4" />
           </a>
 
-          {/* Center Elevated Action Button (Like sample bottom dock) */}
-          <div className="relative -top-4">
+          {/* Center Elevated Action Button (Compact & Premium) */}
+          <div className="relative -top-2">
             <a
               href="https://devgronix.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex size-12 items-center justify-center rounded-full bg-gradient-to-tr from-primary to-cyan-400 text-neutral-950 shadow-[0_0_20px_rgba(56,189,248,0.5)] border-4 border-neutral-950 active:scale-95 transition-transform"
+              className="flex size-9 items-center justify-center rounded-full bg-gradient-to-tr from-primary to-cyan-400 text-neutral-950 shadow-[0_0_15px_rgba(56,189,248,0.4)] border-2 border-neutral-950 active:scale-95 transition-transform"
               aria-label="DEVGRONIX"
             >
-              <Mail className="size-5 font-bold" />
+              <Sparkles className="size-4 font-bold" />
             </a>
           </div>
 
@@ -155,19 +155,16 @@ export function Header() {
             className={`p-2 rounded-full transition ${activeSection === "projects" ? "text-primary bg-primary/15" : "text-neutral-400 hover:text-white"}`}
             aria-label="Projects"
           >
-            <FolderGit2 className="size-5" />
+            <FolderGit2 className="size-4" />
           </a>
 
-          {/* Skills / Certificates */}
+          {/* Skills */}
           <a
             href="#skills"
             className={`p-2 rounded-full transition ${activeSection === "skills" ? "text-primary bg-primary/15" : "text-neutral-400 hover:text-white"}`}
             aria-label="Skills"
           >
-            <Code2 className="size-5" />
+            <Code2 className="size-4" />
           </a>
         </div>
       </div>
-    </>
-  );
-}
