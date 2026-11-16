@@ -1,20 +1,18 @@
 import React from "react";
 import { 
   Github, 
-  Linkedin, 
   Twitter, 
   Mail, 
   MapPin, 
   ArrowUpRight, 
   ShieldCheck, 
-  MessageCircle,
   Terminal
 } from "lucide-react";
 
 export function Footer() {
   return (
-    <footer className="dark relative mt-24 overflow-hidden bg-background text-foreground pb-24 md:pb-12">
-      {/* Top Ambient Glow Orb - Identical to Devgronix */}
+    <footer className="dark relative mt-24 overflow-hidden bg-background text-foreground pb-28 md:pb-12">
+      {/* Top Ambient Glow Orb */}
       <div className="pointer-events-none absolute -top-48 left-1/2 h-96 w-[70rem] -translate-x-1/2 rounded-full bg-primary/20 blur-3xl" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative pt-16">
@@ -127,7 +125,7 @@ export function Footer() {
           </div>
         </div>
 
-        {/* Massive Watermark Typography - Devgronix signature */}
+        {/* Watermark Typography */}
         <div
           aria-hidden="true"
           className="select-none font-display font-black leading-none tracking-tighter text-[16vw] md:text-[12rem] text-center -mb-[0.18em] text-primary/10 opacity-30 pointer-events-none"
@@ -138,10 +136,9 @@ export function Footer() {
 
       {/* Sub-footer with Devgronix Crafted Badge */}
       <div className="relative border-t border-border/40 mt-6">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-20 md:py-6 text-xs text-muted-foreground flex flex-col md:flex-row gap-3 justify-between items-center">
-          <span>© {new Date().getFullYear()} Aman Alam (Hashmi Aman). All rights reserved.</span>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-24 md:py-6 text-xs text-muted-foreground flex flex-col md:flex-row gap-3 justify-between items-center">
+          <span>© 2026 Aman Alam (Hashmi Aman). All rights reserved.</span>
           <div className="flex flex-wrap items-center gap-4">
-            {/* Devgronix Crafted & Secured badge */}
             <a
               href="https://devgronix.com"
               target="_blank"
