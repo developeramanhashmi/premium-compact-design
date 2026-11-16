@@ -1,12 +1,8 @@
 import React, { useState, useEffect } from "react";
-import portraitAsset from "@/assets/aman-alam-portrait.png.asset.json";
 import { 
-  Terminal, 
   Home, 
   FolderGit2, 
   Code2, 
-  Award, 
-  Mail, 
   Github, 
   ArrowUpRight,
   Sparkles,
@@ -15,11 +11,9 @@ import {
 
 export function Header() {
   const [activeSection, setActiveSection] = useState("home");
-  const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
-      setScrolled(window.scrollY > 20);
       const sections = ["contact", "certificates", "skills", "projects", "about"];
       for (const section of sections) {
         const el = document.getElementById(section);
@@ -41,14 +35,13 @@ export function Header() {
         <div className="flex items-center gap-3 pointer-events-auto">
           {/* Main Floating Pill (Logo + Navigation Tabs) */}
           <div className="flex items-center gap-1 rounded-full border border-white/10 bg-neutral-950/75 backdrop-blur-xl px-4 py-2 shadow-2xl shadow-black/60 transition-all duration-300 hover:border-white/20">
-            {/* Logo */}
             {/* Logo with Portrait & Premium Typography */}
             <a 
               href="#top" 
               className="flex items-center gap-2.5 pr-3.5 border-r border-white/10 group"
               aria-label="Home"
             >
-              {/* Circular Portrait with soft glowing ring */}
+              {/* Circular Portrait */}
               <div className="relative size-7 rounded-full overflow-hidden border border-primary/50 shadow-[0_0_12px_rgba(56,189,248,0.35)] ring-1 ring-white/20 group-hover:scale-105 transition-transform duration-200">
                 <img 
                   src="/favicon.png" 
@@ -62,7 +55,6 @@ export function Header() {
                 Aman<span className="text-primary inline-block font-black animate-pulse">.</span>
               </span>
             </a>
-
 
             {/* Nav Tabs */}
             <nav className="flex items-center gap-1 pl-2" aria-label="Desktop Navigation">
@@ -168,3 +160,6 @@ export function Header() {
           </a>
         </div>
       </div>
+    </>
+  );
+}
