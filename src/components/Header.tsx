@@ -33,15 +33,14 @@ export function Header() {
       {/* ================= DESKTOP FLOATING PILL NAVBAR ================= */}
       <header className="hidden md:flex fixed top-4 inset-x-0 z-50 justify-center px-4 pointer-events-none">
         <div className="flex items-center gap-3 pointer-events-auto">
-          {/* Main Floating Pill (Logo + Navigation Tabs) */}
+          {/* Main Floating Pill */}
           <div className="flex items-center gap-1 rounded-full border border-white/10 bg-neutral-950/75 backdrop-blur-xl px-4 py-2 shadow-2xl shadow-black/60 transition-all duration-300 hover:border-white/20">
-            {/* Logo with Portrait & Premium Typography */}
+            {/* Logo */}
             <a 
               href="#top" 
               className="flex items-center gap-2.5 pr-3.5 border-r border-white/10 group"
               aria-label="Home"
             >
-              {/* Circular Portrait */}
               <div className="relative size-7 rounded-full overflow-hidden border border-primary/50 shadow-[0_0_12px_rgba(56,189,248,0.35)] ring-1 ring-white/20 group-hover:scale-105 transition-transform duration-200">
                 <img 
                   src="/favicon.png" 
@@ -50,7 +49,6 @@ export function Header() {
                 />
               </div>
             
-              {/* Stylish Modern Typography */}
               <span className="font-display text-sm tracking-wide font-extrabold bg-gradient-to-r from-white via-neutral-100 to-neutral-400 bg-clip-text text-transparent group-hover:from-white group-hover:to-primary transition-all duration-300">
                 Aman<span className="text-primary inline-block font-black animate-pulse">.</span>
               </span>
@@ -81,7 +79,7 @@ export function Header() {
               })}
             </nav>
 
-            {/* GitHub Icon */}
+            {/* GitHub */}
             <a
               href="https://github.com/developeramanhashmi"
               target="_blank"
@@ -108,12 +106,14 @@ export function Header() {
       </header>
 
       {/* ================= MOBILE FLOATING BOTTOM DOCK ================= */}
-      <div className="md:hidden fixed bottom-3.5 inset-x-0 z-50 flex justify-center px-4 pointer-events-none">
-        <div className="pointer-events-auto relative flex items-center justify-between gap-2 rounded-full border border-white/10 bg-neutral-950/80 backdrop-blur-xl px-4 py-1.5 shadow-[0_8px_30px_rgba(0,0,0,0.7)]">
+      <div className="md:hidden fixed bottom-4 inset-x-0 z-50 flex justify-center px-4 pointer-events-none">
+        <div className="pointer-events-auto w-full max-w-[340px] relative flex items-center justify-around rounded-full border border-white/10 bg-neutral-950/85 backdrop-blur-xl px-2 py-2 shadow-[0_10px_35px_rgba(0,0,0,0.8)]">
           {/* Home */}
           <a
             href="#top"
-            className={`p-2 rounded-full transition ${activeSection === "home" ? "text-primary bg-primary/15" : "text-neutral-400 hover:text-white"}`}
+            className={`flex items-center justify-center size-10 rounded-full transition-all duration-200 ${
+              activeSection === "home" ? "text-primary bg-primary/15" : "text-neutral-400 hover:text-white"
+            }`}
             aria-label="Home"
           >
             <Home className="size-4" />
@@ -122,29 +122,33 @@ export function Header() {
           {/* About */}
           <a
             href="#about"
-            className={`p-2 rounded-full transition ${activeSection === "about" ? "text-primary bg-primary/15" : "text-neutral-400 hover:text-white"}`}
+            className={`flex items-center justify-center size-10 rounded-full transition-all duration-200 ${
+              activeSection === "about" ? "text-primary bg-primary/15" : "text-neutral-400 hover:text-white"
+            }`}
             aria-label="About"
           >
             <User className="size-4" />
           </a>
 
-          {/* Center Elevated Action Button (Compact & Premium) */}
-          <div className="relative -top-2">
+          {/* Center Elevated Action Button (DEVGRONIX) */}
+          <div className="relative -top-3">
             <a
               href="https://devgronix.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex size-9 items-center justify-center rounded-full bg-gradient-to-tr from-primary to-cyan-400 text-neutral-950 shadow-[0_0_15px_rgba(56,189,248,0.4)] border-2 border-neutral-950 active:scale-95 transition-transform"
+              className="flex size-11 items-center justify-center rounded-full bg-gradient-to-tr from-primary via-cyan-400 to-sky-300 text-neutral-950 shadow-[0_0_20px_rgba(56,189,248,0.5)] border-2 border-neutral-950 active:scale-90 transition-transform duration-200"
               aria-label="DEVGRONIX"
             >
-              <Sparkles className="size-4 font-bold" />
+              <Sparkles className="size-5 font-black text-neutral-950" />
             </a>
           </div>
 
           {/* Projects */}
           <a
             href="#projects"
-            className={`p-2 rounded-full transition ${activeSection === "projects" ? "text-primary bg-primary/15" : "text-neutral-400 hover:text-white"}`}
+            className={`flex items-center justify-center size-10 rounded-full transition-all duration-200 ${
+              activeSection === "projects" ? "text-primary bg-primary/15" : "text-neutral-400 hover:text-white"
+            }`}
             aria-label="Projects"
           >
             <FolderGit2 className="size-4" />
@@ -153,7 +157,9 @@ export function Header() {
           {/* Skills */}
           <a
             href="#skills"
-            className={`p-2 rounded-full transition ${activeSection === "skills" ? "text-primary bg-primary/15" : "text-neutral-400 hover:text-white"}`}
+            className={`flex items-center justify-center size-10 rounded-full transition-all duration-200 ${
+              activeSection === "skills" ? "text-primary bg-primary/15" : "text-neutral-400 hover:text-white"
+            }`}
             aria-label="Skills"
           >
             <Code2 className="size-4" />
