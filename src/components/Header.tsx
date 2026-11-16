@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import portraitAsset from "@/assets/aman-alam-portrait.png.asset.json";
 import { 
   Terminal, 
   Home, 
@@ -41,18 +42,27 @@ export function Header() {
           {/* Main Floating Pill (Logo + Navigation Tabs) */}
           <div className="flex items-center gap-1 rounded-full border border-white/10 bg-neutral-950/75 backdrop-blur-xl px-4 py-2 shadow-2xl shadow-black/60 transition-all duration-300 hover:border-white/20">
             {/* Logo */}
+            {/* Logo with Portrait & Premium Typography */}
             <a 
               href="#top" 
-              className="flex items-center gap-2 pr-3 border-r border-white/10 group"
+              className="flex items-center gap-2.5 pr-3.5 border-r border-white/10 group"
               aria-label="Home"
             >
-              <span className="p-1.5 rounded-full bg-primary/15 text-primary border border-primary/30 group-hover:scale-110 transition-transform">
-                <Terminal className="size-3.5" />
-              </span>
-              <span className="font-display text-sm font-bold tracking-tight text-neutral-100">
-                Aman<span className="text-primary font-black">.</span>
+              {/* Circular Portrait with soft glowing ring */}
+              <div className="relative size-7 rounded-full overflow-hidden border border-primary/50 shadow-[0_0_12px_rgba(56,189,248,0.35)] ring-1 ring-white/20 group-hover:scale-105 transition-transform duration-200">
+                <img 
+                  src={portraitAsset.url} 
+                  alt="Aman" 
+                  className="size-full object-cover object-top" 
+                />
+              </div>
+            
+              {/* Stylish Modern Typography */}
+              <span className="font-display text-sm tracking-wide font-extrabold bg-gradient-to-r from-white via-neutral-100 to-neutral-400 bg-clip-text text-transparent group-hover:from-white group-hover:to-primary transition-all duration-300">
+                Aman<span className="text-primary inline-block font-black animate-pulse">.</span>
               </span>
             </a>
+
 
             {/* Nav Tabs */}
             <nav className="flex items-center gap-1 pl-2" aria-label="Desktop Navigation">
