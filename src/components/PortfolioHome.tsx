@@ -117,7 +117,7 @@ export function PortfolioHome() {
             <div className="pointer-events-none absolute inset-x-5 top-8 bottom-2 bg-gradient-to-br from-primary/25 via-violet/20 to-accent/25 blur-2xl" />
             <div className="relative aspect-[4/5] overflow-hidden rounded-3xl border border-border/80 bg-gradient-to-br from-card via-background to-surface-raised/80 shadow-2xl">
               <div className="absolute inset-x-0 bottom-0 z-10 h-1/3 bg-gradient-to-t from-background/80 to-transparent" />
-              <img src="/avatar.png" alt="Aman Alam, founder of DEVGRONIX" className="relative z-0 h-full w-full object-contain object-bottom" />
+              <img src="/favicon.png" alt="Aman Alam, founder of DEVGRONIX" className="relative z-0 h-full w-full object-contain object-bottom" />
               <div className="absolute bottom-4 left-4 z-20 inline-flex items-center gap-2 rounded-full border border-border bg-background/80 px-3 py-2 text-xs font-medium text-foreground backdrop-blur-md">
                 <span className="size-2 rounded-full bg-primary" /> Founder @ DEVGRONIX
               </div>
