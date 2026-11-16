@@ -91,13 +91,15 @@ export function Header() {
             </a>
           </div>
 
-          {/* Standalone Glowing Accent Button (Devgronix / V10 Style) */}
+          {/* Agency link */}
           <a
-            href="#contact"
-            className="group relative inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-primary via-indigo-500 to-cyan-400 px-5 py-2.5 text-xs font-bold text-primary-foreground shadow-[0_0_25px_rgba(56,189,248,0.35)] transition-all duration-300 hover:shadow-[0_0_35px_rgba(56,189,248,0.6)] hover:brightness-110 active:scale-95"
+            href="https://devgronix.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group relative inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-xs font-bold text-primary-foreground transition-all duration-300 hover:brightness-110 active:scale-95"
           >
-            <Sparkles className="size-3.5 animate-pulse" />
-            <span>Let's Talk</span>
+            <Sparkles className="size-3.5" />
+            <span>DEVGRONIX</span>
             <ArrowUpRight className="size-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
           </a>
         </div>
@@ -127,9 +129,11 @@ export function Header() {
           {/* Center Elevated Action Button (Like sample bottom dock) */}
           <div className="relative -top-4">
             <a
-              href="#contact"
+              href="https://devgronix.com"
+              target="_blank"
+              rel="noopener noreferrer"
               className="flex size-12 items-center justify-center rounded-full bg-gradient-to-tr from-primary to-cyan-400 text-neutral-950 shadow-[0_0_20px_rgba(56,189,248,0.5)] border-4 border-neutral-950 active:scale-95 transition-transform"
-              aria-label="Contact"
+              aria-label="DEVGRONIX"
             >
               <Mail className="size-5 font-bold" />
             </a>

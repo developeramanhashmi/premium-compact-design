@@ -143,7 +143,7 @@ export function Footer() {
           <div className="flex flex-wrap items-center gap-4">
             {/* Devgronix Crafted & Secured badge */}
             <a
-              href="https://devgronix.in"
+              href="https://devgronix.com"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1.5 hover:text-primary transition-colors text-foreground/80 font-medium"

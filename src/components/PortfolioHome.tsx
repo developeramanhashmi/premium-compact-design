@@ -1,7 +1,9 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Header } from "./Header";
 import { Footer } from "./Footer";
 import { PORTFOLIO_DATA, Project } from "@/data/portfolioData";
+import portraitAsset from "@/assets/aman-alam-portrait.png.asset.json";
+import { Button } from "@/components/ui/button";
 import { 
   Github, 
   ArrowUpRight, 
@@ -15,90 +17,76 @@ import {
 export function PortfolioHome() {
   const [activeFilter, setActiveFilter] = useState<string>("All");
   const [formSent, setFormSent] = useState(false);
+  const [activeRole, setActiveRole] = useState(0);
 
-  const categories = ["All", "Data Analysis", "Dashboards", "Web"];
+  const categories = ["All", "DEVGRONIX Work", "Data Analysis", "Dashboards", "Web Development"];
+  const roles = ["Data Analyst", "Software Developer", "Frontend Developer", "Founder at DEVGRONIX"];
+
+  useEffect(() => {
+    const timer = window.setInterval(() => setActiveRole((role) => (role + 1) % roles.length), 2800);
+    return () => window.clearInterval(timer);
+  }, []);
 
   const filteredProjects = activeFilter === "All" 
     ? PORTFOLIO_DATA.projects 
-    : PORTFOLIO_DATA.projects.filter(p => p.tag.toLowerCase().includes(activeFilter.toLowerCase()));
+    : PORTFOLIO_DATA.projects.filter(p => p.tag === activeFilter);
 
   return (
     <div id="top" className="min-h-screen bg-neutral-950 text-neutral-100 selection:bg-primary/20 selection:text-primary">
       <Header />
 
-      {/* ================= HERO SECTION (V10 PREMIUM STYLE) ================= */}
-      <section className="relative pt-28 pb-20 md:pt-36 md:pb-28 overflow-hidden border-b border-white/5">
-        {/* Ambient Glows */}
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[42rem] h-[26rem] bg-gradient-to-tr from-primary/20 via-indigo-500/15 to-cyan-500/10 rounded-full blur-[120px] pointer-events-none" />
-        <div className="absolute top-10 left-10 size-72 bg-primary/10 rounded-full blur-[90px] pointer-events-none" />
-
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-          <div className="max-w-3xl">
-            {/* Status Beacon Pill */}
-            <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full border border-primary/30 bg-primary/10 text-primary text-xs font-mono font-medium mb-6 backdrop-blur-md">
-              <span className="relative flex size-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75" />
-                <span className="relative inline-flex rounded-full size-2 bg-primary" />
-              </span>
+      {/* ================= HERO SECTION ================= */}
+      <section className="relative overflow-hidden border-b border-border/50 bg-background pt-24 pb-10 sm:pt-28 md:pt-28 md:pb-12">
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-primary/10 via-background to-violet-soft/15" />
+        <div className="relative mx-auto grid max-w-7xl items-center gap-8 px-4 sm:px-6 md:grid-cols-[minmax(0,1.08fr)_minmax(260px,0.78fr)] md:gap-12 lg:px-8">
+          <div className="min-w-0">
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-primary/25 bg-primary/10 px-3 py-1.5 font-mono text-xs font-medium text-primary">
+              <span className="size-1.5 shrink-0 rounded-full bg-primary" />
               <span>{PORTFOLIO_DATA.profile.badge}</span>
             </div>
-
-            {/* Headline */}
-            <h1 className="text-4xl sm:text-6xl md:text-7xl font-display font-extrabold tracking-tight leading-[1.08]">
-              Hi, I'm <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-neutral-200 to-neutral-400">Aman Alam</span>
-              <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-indigo-400 to-cyan-400">
-                Data Analyst
-              </span>
+            <h1 className="font-display text-4xl font-extrabold leading-tight text-foreground sm:text-5xl md:text-6xl">
+              Hi, I’m <span className="text-primary">Aman Alam</span>
             </h1>
-
-            <p className="mt-5 text-lg sm:text-xl text-neutral-400 font-normal leading-relaxed max-w-2xl">
+            <div className="mt-1 flex h-[3.2rem] items-center sm:h-[4rem]" aria-live="polite" aria-atomic="true">
+              <span key={roles[activeRole]} className="role-fade block font-display text-2xl font-semibold text-foreground sm:text-4xl">
+                {roles[activeRole]}
+              </span>
+            </div>
+            <a href="https://devgronix.com" target="_blank" rel="noopener noreferrer" className="mt-3 inline-flex max-w-full items-center gap-2 rounded-full border border-violet/30 bg-violet-soft/30 px-3 py-2 text-xs font-medium text-foreground transition hover:border-violet/60">
+              <span className="min-w-0">Founder &amp; Lead Full-Stack Architect @ <strong className="text-violet">DEVGRONIX</strong></span>
+              <ArrowUpRight className="size-3.5 shrink-0 text-muted-foreground" />
+            </a>
+            <p className="mt-4 max-w-xl text-sm leading-relaxed text-muted-foreground sm:text-base">
               {PORTFOLIO_DATA.profile.bio}
             </p>
-
-            {/* V10 Style Action Buttons */}
-            <div className="mt-9 flex flex-wrap items-center gap-3.5">
-              {/* Primary Glowing Action Pill */}
-              <a
-                href="#projects"
-                className="group relative inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-primary via-indigo-500 to-cyan-400 text-neutral-950 px-6 py-3.5 text-xs sm:text-sm font-bold shadow-[0_0_25px_rgba(56,189,248,0.35)] hover:shadow-[0_0_35px_rgba(56,189,248,0.6)] hover:scale-[1.02] active:scale-95 transition-all duration-200"
-              >
-                <span>Explore Work</span>
-                <ArrowUpRight className="size-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-              </a>
-
-              {/* Frosted Glass Secondary Pill */}
-              <a
-                href="#contact"
-                className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-neutral-900/60 backdrop-blur-xl px-6 py-3.5 text-xs sm:text-sm font-semibold text-neutral-200 hover:border-white/30 hover:bg-neutral-800/80 active:scale-95 transition-all shadow-md"
-              >
-                <Mail className="size-4 text-neutral-400" />
-                <span>Get In Touch</span>
-              </a>
-
-              {/* GitHub Pill */}
-              <a
-                href={PORTFOLIO_DATA.profile.github}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="p-3.5 rounded-full border border-white/15 bg-neutral-900/60 backdrop-blur-xl hover:border-white/30 hover:bg-neutral-800/80 text-neutral-400 hover:text-white active:scale-95 transition-all"
-                aria-label="GitHub"
-              >
+            <div className="mt-6 flex flex-wrap items-center gap-2.5">
+              <Button asChild size="sm" className="rounded-full px-4">
+                <a href="#projects">Explore Work <ArrowUpRight /></a>
+              </Button>
+              <Button asChild variant="outline" size="sm" className="rounded-full px-4">
+                <a href="#contact"><Mail /> Let’s Talk</a>
+              </Button>
+              <a href={PORTFOLIO_DATA.profile.github} target="_blank" rel="noopener noreferrer" className="inline-flex size-9 items-center justify-center rounded-full border border-border bg-card/70 text-muted-foreground transition hover:border-primary/50 hover:text-foreground" aria-label="GitHub">
                 <Github className="size-4" />
               </a>
+              <Button asChild variant="secondary" size="sm" className="rounded-full px-4">
+                <a href="https://devgronix.com" target="_blank" rel="noopener noreferrer">DEVGRONIX <ArrowUpRight /></a>
+              </Button>
             </div>
-
-            {/* Quick Specs / Stat Badges */}
-            <div className="mt-10 pt-8 border-t border-white/10 flex flex-wrap items-center gap-6 text-xs text-neutral-400 font-mono">
-              <span className="flex items-center gap-2">
-                <span className="size-1.5 rounded-full bg-emerald-400" /> IIT Madras BS Scholar
-              </span>
-              <span className="flex items-center gap-2">
-                <span className="size-1.5 rounded-full bg-cyan-400" /> MANUU CS Diploma
-              </span>
-              <span className="flex items-center gap-2">
-                <span className="size-1.5 rounded-full bg-indigo-400" /> Python · SQL · Power BI
-              </span>
+            <div className="mt-6 flex flex-wrap gap-x-5 gap-y-2 border-t border-border/70 pt-4 font-mono text-[11px] text-muted-foreground">
+              <span>IIT Madras · BS Scholar</span>
+              <span>MANUU · CS Diploma</span>
+              <span>Python · SQL · Power BI</span>
+            </div>
+          </div>
+          <div className="relative mx-auto w-full max-w-[360px] md:ml-auto md:mr-6">
+            <div className="pointer-events-none absolute inset-x-5 top-8 bottom-2 bg-gradient-to-br from-primary/25 via-violet/20 to-accent/25 blur-2xl" />
+            <div className="relative aspect-[4/5] overflow-hidden rounded-3xl border border-border/80 bg-gradient-to-br from-card via-background to-surface-raised/80 shadow-2xl">
+              <div className="absolute inset-x-0 bottom-0 z-10 h-1/3 bg-gradient-to-t from-background/80 to-transparent" />
+              <img src={portraitAsset.url} alt="Aman Alam, founder of DEVGRONIX" className="relative z-0 h-full w-full object-contain object-bottom" />
+              <div className="absolute bottom-4 left-4 z-20 inline-flex items-center gap-2 rounded-full border border-border bg-background/80 px-3 py-2 text-xs font-medium text-foreground backdrop-blur-md">
+                <span className="size-2 rounded-full bg-primary" /> Founder @ DEVGRONIX
+              </div>
             </div>
           </div>
         </div>
