@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { Header } from "./Header";
 import { Footer } from "./Footer";
 import { PORTFOLIO_DATA, Project } from "@/data/portfolioData";
-import portraitAsset from "@/assets/aman-alam-portrait.png.asset.json";
 import { Button } from "@/components/ui/button";
 import { 
   Github, 
@@ -151,6 +150,7 @@ export function PortfolioHome() {
       {/* ================= PROJECTS GRID ================= */}
       <section id="projects" className="py-20 border-b border-white/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Header & Category Filters */}
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10">
             <div>
               <p className="text-xs uppercase tracking-widest text-primary font-mono font-semibold">Portfolio</p>
@@ -159,16 +159,16 @@ export function PortfolioHome() {
               </h2>
             </div>
 
-            {/* Filter Pills */}
-            <div className="flex flex-wrap gap-1.5 p-1 rounded-full border border-white/10 bg-neutral-900/60 backdrop-blur-md">
+            {/* Modern Swipeable Filter Pills on Mobile / Clean Wrap on Desktop */}
+            <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1 -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap">
               {categories.map(cat => (
                 <button
                   key={cat}
                   onClick={() => setActiveFilter(cat)}
-                  className={`px-3 py-1 text-xs rounded-full font-medium transition ${
+                  className={`shrink-0 whitespace-nowrap px-4 py-2 text-xs rounded-full font-medium transition-all duration-200 border ${
                     activeFilter === cat 
-                      ? "bg-primary text-neutral-950 font-semibold" 
-                      : "text-neutral-400 hover:text-white"
+                      ? "bg-primary border-primary text-neutral-950 font-semibold shadow-xs" 
+                      : "border-white/10 bg-neutral-900/80 text-neutral-400 hover:text-white hover:border-white/20 active:scale-95"
                   }`}
                 >
                   {cat}
@@ -176,6 +176,7 @@ export function PortfolioHome() {
               ))}
             </div>
           </div>
+
 
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {filteredProjects.map(project => (
