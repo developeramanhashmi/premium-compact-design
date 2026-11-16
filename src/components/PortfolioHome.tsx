@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Header } from "./Header";
 import { Footer } from "./Footer";
+import { NetworkNodesCanvas } from "./NetworkNodesCanvas";
+import { DevTerminal } from "./DevTerminal";
 import { PORTFOLIO_DATA, Project } from "@/data/portfolioData";
 import { Button } from "@/components/ui/button";
 import { 
@@ -12,12 +14,14 @@ import {
   Mail, 
   CheckCircle2,
   Loader2,
-  Sparkles
+  Sparkles,
+  Terminal
 } from "lucide-react";
 
 export function PortfolioHome() {
   const [activeFilter, setActiveFilter] = useState<string>("All");
   const [activeRole, setActiveRole] = useState(0);
+  const [isTerminalOpen, setIsTerminalOpen] = useState(false);
 
   // Web3Forms state
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -71,6 +75,7 @@ export function PortfolioHome() {
 
       {/* ================= HERO SECTION ================= */}
       <section className="relative overflow-hidden border-b border-border/50 bg-background pt-24 pb-10 sm:pt-28 md:pt-28 md:pb-12">
+        <NetworkNodesCanvas />
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-primary/10 via-background to-violet-soft/15" />
         <div className="relative mx-auto grid max-w-7xl items-center gap-8 px-4 sm:px-6 md:grid-cols-[minmax(0,1.08fr)_minmax(260px,0.78fr)] md:gap-12 lg:px-8">
           <div className="min-w-0">
@@ -100,6 +105,7 @@ export function PortfolioHome() {
               <Button asChild variant="outline" size="sm" className="rounded-full px-4">
                 <a href="#contact"><Mail /> Let’s Talk</a>
               </Button>
+              <button type="button" onClick={() => setIsTerminalOpen(true)} className="inline-flex items-center gap-1.5 rounded-full border border-primary/40 bg-neutral-900/80 px-3.5 py-1.5 font-mono text-xs font-medium text-primary transition hover:border-primary hover:bg-primary/15 shadow-sm"><Terminal className="size-3.5" /><span>&gt;_ CLI Terminal</span></button>
               <a href={PORTFOLIO_DATA.profile.github} target="_blank" rel="noopener noreferrer" className="inline-flex size-9 items-center justify-center rounded-full border border-border bg-card/70 text-muted-foreground transition hover:border-primary/50 hover:text-foreground" aria-label="GitHub">
                 <Github className="size-4" />
               </a>
@@ -435,6 +441,7 @@ export function PortfolioHome() {
       </section>
 
       <Footer />
+      <DevTerminal isOpen={isTerminalOpen} onClose={() => setIsTerminalOpen(false)} />
     </div>
   );
 }
