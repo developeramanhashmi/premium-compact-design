@@ -10,13 +10,19 @@ import {
   GraduationCap, 
   Briefcase, 
   Mail, 
-  CheckCircle2
+  CheckCircle2,
+  Loader2,
+  Sparkles
 } from "lucide-react";
 
 export function PortfolioHome() {
   const [activeFilter, setActiveFilter] = useState<string>("All");
-  const [formSent, setFormSent] = useState(false);
   const [activeRole, setActiveRole] = useState(0);
+
+  // Web3Forms state
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formSent, setFormSent] = useState(false);
+  const [formError, setFormError] = useState("");
 
   const categories = ["All", "DEVGRONIX Work", "Data Analysis", "Dashboards", "Web Development"];
   const roles = ["Data Analyst", "Software Developer", "Frontend Developer", "Founder at DEVGRONIX"];
@@ -25,6 +31,35 @@ export function PortfolioHome() {
     const timer = window.setInterval(() => setActiveRole((role) => (role + 1) % roles.length), 2800);
     return () => window.clearInterval(timer);
   }, []);
+
+  const handleContactSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setFormError("");
+
+    const formData = new FormData(e.currentTarget);
+    // Paste your free key from https://web3forms.com below:
+    formData.append("access_key", "384e156b-939c-4dfc-b5bb-8bf538941572");
+    formData.append("subject", "New Lead from founder.devgronix.com");
+    formData.append("from_name", "Aman Portfolio Lead");
+
+    try {
+      const res = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await res.json();
+      if (data.success) {
+        setFormSent(true);
+      } else {
+        setFormError(data.message || "Message deliver nahi ho saka, please email directly.");
+      }
+    } catch {
+      setFormError("Network error. Please email directly to amanalam0353@gmail.com.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const filteredProjects = activeFilter === "All" 
     ? PORTFOLIO_DATA.projects 
@@ -82,8 +117,7 @@ export function PortfolioHome() {
             <div className="pointer-events-none absolute inset-x-5 top-8 bottom-2 bg-gradient-to-br from-primary/25 via-violet/20 to-accent/25 blur-2xl" />
             <div className="relative aspect-[4/5] overflow-hidden rounded-3xl border border-border/80 bg-gradient-to-br from-card via-background to-surface-raised/80 shadow-2xl">
               <div className="absolute inset-x-0 bottom-0 z-10 h-1/3 bg-gradient-to-t from-background/80 to-transparent" />
-              {/* <img src={portraitAsset.url} alt="Aman Alam, founder of DEVGRONIX" className="relative z-0 h-full w-full object-contain object-bottom" /> */}
-              <img src="/favicon.png" alt="Aman Alam, founder of DEVGRONIX" className="relative z-0 h-full w-full object-contain object-bottom" />
+              <img src="/avatar.png" alt="Aman Alam, founder of DEVGRONIX" className="relative z-0 h-full w-full object-contain object-bottom" />
               <div className="absolute bottom-4 left-4 z-20 inline-flex items-center gap-2 rounded-full border border-border bg-background/80 px-3 py-2 text-xs font-medium text-foreground backdrop-blur-md">
                 <span className="size-2 rounded-full bg-primary" /> Founder @ DEVGRONIX
               </div>
@@ -98,7 +132,7 @@ export function PortfolioHome() {
           <div className="mb-12">
             <p className="text-xs uppercase tracking-widest text-primary font-mono font-semibold">Background</p>
             <h2 className="text-2xl sm:text-4xl font-display font-bold tracking-tight mt-1 text-white">
-              Education & Journey
+              Education &amp; Journey
             </h2>
           </div>
 
@@ -177,7 +211,6 @@ export function PortfolioHome() {
             </div>
           </div>
 
-
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {filteredProjects.map(project => (
               <div 
@@ -229,7 +262,7 @@ export function PortfolioHome() {
           <div className="mb-10">
             <p className="text-xs uppercase tracking-widest text-primary font-mono font-semibold">Capabilities</p>
             <h2 className="text-2xl sm:text-4xl font-display font-bold tracking-tight mt-1 text-white">
-              Skills & Tech Stack
+              Skills &amp; Tech Stack
             </h2>
           </div>
 
@@ -298,65 +331,104 @@ export function PortfolioHome() {
         </div>
       </section>
 
-      {/* ================= CONTACT SECTION ================= */}
-      <section id="contact" className="py-20">
+      {/* ================= CONTACT SECTION (AI & PREMIUM LOOK) ================= */}
+      <section id="contact" className="py-20 relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="rounded-3xl border border-white/15 bg-neutral-900/60 p-8 md:p-12 backdrop-blur-xl relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-96 h-96 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
+          <div className="rounded-3xl border border-white/15 bg-neutral-900/70 p-8 md:p-12 backdrop-blur-2xl relative overflow-hidden shadow-2xl shadow-primary/5">
+            {/* Ambient Background Glow */}
+            <div className="absolute top-0 right-0 w-[28rem] h-[28rem] bg-gradient-to-bl from-primary/20 via-cyan-500/10 to-transparent rounded-full blur-3xl pointer-events-none" />
 
-            <div className="max-w-2xl">
-              <p className="text-xs uppercase tracking-widest text-primary font-mono font-semibold">Let's connect</p>
-              <h2 className="text-3xl sm:text-4xl font-display font-bold tracking-tight mt-1 text-white">
+            <div className="max-w-2xl relative z-10">
+              {/* AI Live Status Badge */}
+              <div className="inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3.5 py-1 text-xs font-mono text-emerald-400 mb-4">
+                <span className="size-2 rounded-full bg-emerald-400 animate-ping shrink-0" />
+                <span className="size-2 rounded-full bg-emerald-400 -ml-4 shrink-0" />
+                <span>Inbox Live • Verified Direct Delivery</span>
+              </div>
+
+              <h2 className="text-3xl sm:text-4xl font-display font-bold tracking-tight text-white">
                 Interested in working together?
               </h2>
-              <p className="text-sm text-neutral-400 mt-2">
-                Drop me a message directly at{" "}
-                <a href="mailto:amanalam0353@gmail.com" className="text-primary font-medium hover:underline">
-                  amanalam0353@gmail.com
-                </a>
+              <p className="text-sm text-neutral-400 mt-2 leading-relaxed">
+                Direct channel for client inquiries, data contracts, and full-stack partnerships via{" "}
+                <strong className="text-white">DEVGRONIX</strong>.
               </p>
 
-              <form 
-                onSubmit={(e) => { e.preventDefault(); setFormSent(true); }}
-                className="mt-8 space-y-4"
-              >
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <input
-                    type="text"
-                    required
-                    placeholder="Your Name"
-                    className="w-full rounded-xl border border-white/10 bg-neutral-950/60 px-4 py-3 text-xs sm:text-sm text-white placeholder:text-neutral-500 focus:border-primary focus:outline-hidden"
-                  />
-                  <input
-                    type="email"
-                    required
-                    placeholder="Your Email"
-                    className="w-full rounded-xl border border-white/10 bg-neutral-950/60 px-4 py-3 text-xs sm:text-sm text-white placeholder:text-neutral-500 focus:border-primary focus:outline-hidden"
-                  />
+              {formSent ? (
+                <div className="mt-8 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-6 text-center animate-fade-in">
+                  <div className="inline-flex size-12 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-400 mb-3">
+                    <CheckCircle2 className="size-6" />
+                  </div>
+                  <h3 className="text-lg font-bold text-white">Message Delivered Successfully!</h3>
+                  <p className="text-xs text-neutral-300 mt-1 max-w-md mx-auto">
+                    Aapka message deliver ho gaya hai. Aman aapse jald hi email par connect karenge.
+                  </p>
                 </div>
-                <textarea
-                  required
-                  rows={4}
-                  placeholder="Tell me about your project, team or opening..."
-                  className="w-full rounded-xl border border-white/10 bg-neutral-950/60 px-4 py-3 text-xs sm:text-sm text-white placeholder:text-neutral-500 focus:border-primary focus:outline-hidden"
-                />
-                <button
-                  type="submit"
-                  className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-primary via-indigo-500 to-cyan-400 px-6 py-3.5 text-xs sm:text-sm font-bold text-neutral-950 shadow-lg hover:shadow-primary/40 active:scale-95 transition"
-                >
-                  {formSent ? (
-                    <>
-                      <CheckCircle2 className="size-4" />
-                      <span>Message Sent!</span>
-                    </>
-                  ) : (
-                    <>
-                      <Mail className="size-4" />
-                      <span>Send Message</span>
-                    </>
+              ) : (
+                <form onSubmit={handleContactSubmit} className="mt-8 space-y-4">
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div>
+                      <input
+                        type="text"
+                        name="name"
+                        required
+                        placeholder="Your Name / Company"
+                        className="w-full rounded-xl border border-white/10 bg-neutral-950/70 px-4 py-3.5 text-xs sm:text-sm text-white placeholder:text-neutral-500 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-hidden transition"
+                      />
+                    </div>
+                    <div>
+                      <input
+                        type="email"
+                        name="email"
+                        required
+                        placeholder="Your Work Email"
+                        className="w-full rounded-xl border border-white/10 bg-neutral-950/70 px-4 py-3.5 text-xs sm:text-sm text-white placeholder:text-neutral-500 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-hidden transition"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <textarea
+                      name="message"
+                      required
+                      rows={4}
+                      placeholder="Tell me about your project, team, or data requirements..."
+                      className="w-full rounded-xl border border-white/10 bg-neutral-950/70 px-4 py-3.5 text-xs sm:text-sm text-white placeholder:text-neutral-500 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-hidden transition resize-none"
+                    />
+                  </div>
+
+                  {formError && (
+                    <p className="text-xs text-red-400">{formError}</p>
                   )}
-                </button>
-              </form>
+
+                  <div className="flex flex-wrap items-center gap-3 pt-2">
+                    <button
+                      type="submit"
+                      disabled={isSubmitting}
+                      className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-primary via-cyan-400 to-sky-300 px-6 py-3.5 text-xs sm:text-sm font-bold text-neutral-950 shadow-lg shadow-primary/20 hover:shadow-primary/40 active:scale-95 disabled:opacity-50 transition"
+                    >
+                      {isSubmitting ? (
+                        <>
+                          <Loader2 className="size-4 animate-spin" />
+                          <span>Delivering...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Mail className="size-4" />
+                          <span>Transmit Message</span>
+                        </>
+                      )}
+                    </button>
+
+                    <a
+                      href="mailto:amanalam0353@gmail.com"
+                      className="text-xs text-neutral-400 hover:text-white transition px-3 py-2"
+                    >
+                      Or email directly: <span className="text-primary font-mono">amanalam0353@gmail.com</span>
+                    </a>
+                  </div>
+                </form>
+              )}
             </div>
           </div>
         </div>
