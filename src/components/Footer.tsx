@@ -4,52 +4,19 @@ import {
   Twitter, 
   Mail, 
   MapPin, 
-  ArrowUpRight, 
   ShieldCheck, 
   Terminal
 } from "lucide-react";
 
 export function Footer() {
   return (
-    <footer className="dark relative mt-24 overflow-hidden bg-background text-foreground pb-28 md:pb-12">
+    <footer className="dark relative mt-16 overflow-hidden bg-background text-foreground pb-28 md:pb-12 border-t border-border/40">
       {/* Top Ambient Glow Orb */}
       <div className="pointer-events-none absolute -top-48 left-1/2 h-96 w-[70rem] -translate-x-1/2 rounded-full bg-primary/20 blur-3xl" />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative pt-16">
-        {/* Floating Call to Action Card */}
-        <div className="flex flex-col gap-8 rounded-3xl border border-border/80 bg-card/60 p-8 backdrop-blur-md md:flex-row md:items-center md:justify-between md:p-12 shadow-xl shadow-primary/5">
-          <div>
-            <p className="text-xs uppercase tracking-widest text-primary font-mono font-semibold">Start a conversation</p>
-            <h2 className="mt-2.5 max-w-xl text-2xl sm:text-3xl md:text-4xl font-semibold tracking-tight">
-              Have an opening or data project? <span className="text-primary">Let's connect.</span>
-            </h2>
-            <p className="mt-2 text-sm text-muted-foreground max-w-md">
-              Available for Data Analyst & Front-end Developer opportunities in Patna, Hyderabad, or remote worldwide.
-            </p>
-          </div>
-          <div className="flex flex-wrap items-center gap-3">
-            <a
-              href="mailto:amanalam0353@gmail.com"
-              className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3.5 text-sm font-semibold text-primary-foreground hover:brightness-110 active:scale-[0.98] transition shadow-md"
-            >
-              <Mail className="size-4" />
-              <span>Email Aman</span>
-            </a>
-            <a
-              href="https://github.com/developeramanhashmi"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 rounded-full border border-border/80 bg-card/80 px-6 py-3.5 text-sm font-semibold hover:border-primary/60 hover:bg-accent transition"
-            >
-              <Github className="size-4" />
-              <span>GitHub</span>
-              <ArrowUpRight className="size-3.5 text-muted-foreground" />
-            </a>
-          </div>
-        </div>
-
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative pt-12">
         {/* Multi-column Footer Navigation */}
-        <div className="grid gap-12 py-16 md:grid-cols-12 border-b border-border/40">
+        <div className="grid gap-12 pb-16 md:grid-cols-12 border-b border-border/40">
           {/* Col 1: Bio */}
           <div className="md:col-span-5">
             <div className="font-display text-2xl font-bold tracking-tight flex items-center gap-1.5">
@@ -60,7 +27,7 @@ export function Footer() {
               </span>
             </div>
             <p className="mt-4 max-w-sm text-sm text-muted-foreground leading-relaxed">
-              Data Analyst with IIT Madras & MANUU background. Building actionable intelligence with SQL, Python, and Power BI alongside clean modern front-ends.
+              Data Analyst with IIT Madras &amp; MANUU background. Building actionable intelligence with SQL, Python, and Power BI alongside clean modern front-ends.
             </p>
             <div className="mt-6 flex items-center gap-3">
               <a
@@ -95,11 +62,11 @@ export function Footer() {
           <div className="md:col-span-3">
             <h3 className="text-xs uppercase tracking-widest text-primary font-mono font-semibold mb-5">Navigation</h3>
             <ul className="space-y-3 text-sm text-muted-foreground">
-              <li><a href="#about" className="hover:text-primary transition-colors">About & Education</a></li>
+              <li><a href="#about" className="hover:text-primary transition-colors">About &amp; Education</a></li>
               <li><a href="#projects" className="hover:text-primary transition-colors">Featured Projects</a></li>
-              <li><a href="#skills" className="hover:text-primary transition-colors">Skills & Tech Stack</a></li>
+              <li><a href="#skills" className="hover:text-primary transition-colors">Skills &amp; Tech Stack</a></li>
               <li><a href="#certificates" className="hover:text-primary transition-colors">Verified Certificates</a></li>
-              <li><a href="#contact" className="hover:text-primary transition-colors">Contact & Hire</a></li>
+              <li><a href="#contact" className="hover:text-primary transition-colors">Contact &amp; Hire</a></li>
             </ul>
           </div>
 
@@ -115,11 +82,11 @@ export function Footer() {
               </li>
               <li className="flex items-start gap-3">
                 <MapPin className="size-4 mt-0.5 text-primary shrink-0" />
-                <span>Patna, Bihar & Hyderabad, Telangana, India</span>
+                <span>Patna, Bihar &amp; Hyderabad, Telangana, India</span>
               </li>
               <li className="flex items-start gap-3">
                 <Terminal className="size-4 mt-0.5 text-primary shrink-0" />
-                <span>Education: IIT Madras (BS) & MANUU (Diploma CSE)</span>
+                <span>Education: IIT Madras (BS) &amp; MANUU (Diploma CSE)</span>
               </li>
             </ul>
           </div>
