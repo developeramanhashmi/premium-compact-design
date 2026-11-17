@@ -4,6 +4,7 @@ import { Footer } from "./Footer";
 import { NetworkNodesCanvas } from "./NetworkNodesCanvas";
 import { DevTerminal } from "./DevTerminal";
 import { SpotlightGlow } from "./SpotlightGlow";
+import { CodeShowcase } from "./CodeShowcase";
 import { PORTFOLIO_DATA, Project } from "@/data/portfolioData";
 import { Button } from "@/components/ui/button";
 import { 
@@ -31,6 +32,22 @@ export function PortfolioHome() {
 
   const categories = ["All", "DEVGRONIX Work", "Data Analysis", "Dashboards", "Web Development"];
   const roles = ["Data Analyst", "Software Developer", "Frontend Developer", "Founder at DEVGRONIX"];
+
+  // Global shortcut: Cmd+K / Ctrl+K to toggle CLI Terminal
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setIsTerminalOpen((prev) => !prev);
+      }
+      if (e.key === "Escape") {
+        setIsTerminalOpen(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
 
   useEffect(() => {
     const timer = window.setInterval(() => setActiveRole((role) => (role + 1) % roles.length), 2800);
@@ -107,7 +124,19 @@ export function PortfolioHome() {
               <Button asChild variant="outline" size="sm" className="rounded-full px-4">
                 <a href="#contact"><Mail /> Let’s Talk</a>
               </Button>
-              <button type="button" onClick={() => setIsTerminalOpen(true)} className="inline-flex items-center gap-1.5 rounded-full border border-primary/40 bg-neutral-900/80 px-3.5 py-1.5 font-mono text-xs font-medium text-primary transition hover:border-primary hover:bg-primary/15 shadow-sm"><Terminal className="size-3.5" /><span>&gt;_ CLI Terminal</span></button>
+              {/* <button type="button" onClick={() => setIsTerminalOpen(true)} className="inline-flex items-center gap-1.5 rounded-full border border-primary/40 bg-neutral-900/80 px-3.5 py-1.5 font-mono text-xs font-medium text-primary transition hover:border-primary hover:bg-primary/15 shadow-sm"><Terminal className="size-3.5" /><span>&gt;_ CLI Terminal</span></button> */}
+              <button 
+                type="button" 
+                onClick={() => setIsTerminalOpen(true)} 
+                className="inline-flex items-center gap-2 rounded-full border border-primary/40 bg-neutral-900/80 px-3.5 py-1.5 font-mono text-xs font-medium text-primary transition hover:border-primary hover:bg-primary/15 shadow-sm"
+              >
+                <Terminal className="size-3.5" />
+                <span>&gt;_ CLI Terminal</span>
+                <kbd className="hidden sm:inline-flex items-center rounded border border-primary/30 bg-primary/10 px-1.5 py-0.5 text-[10px] font-mono text-primary/90">
+                  ⌘K
+                </kbd>
+              </button>
+
               <a href={PORTFOLIO_DATA.profile.github} target="_blank" rel="noopener noreferrer" className="inline-flex size-9 items-center justify-center rounded-full border border-border bg-card/70 text-muted-foreground transition hover:border-primary/50 hover:text-foreground" aria-label="GitHub">
                 <Github className="size-4" />
               </a>
@@ -298,6 +327,9 @@ export function PortfolioHome() {
           </div>
         </div>
       </section>
+
+      {/* ================= INTERACTIVE CODE SHOWCASE ================= */}
+      <CodeShowcase />
 
       {/* ================= CERTIFICATES ================= */}
       <section id="certificates" className="py-20 border-b border-white/5">
