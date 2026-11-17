@@ -1,82 +1,54 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 
 export function SpotlightGlow() {
-  const containerRef = useRef<HTMLDivElement>(null);
+  const [pos, setPos] = useState<{ x: number; y: number }>({ x: -1000, y: -1000 });
+  const [isVisible, setIsVisible] = useState(false);
   const [isHoverDevice, setIsHoverDevice] = useState(true);
 
   useEffect(() => {
-    // Check if device supports cursor/mouse hover
+    // Check if device supports mouse/cursor
     const mediaQuery = window.matchMedia("(hover: hover)");
     setIsHoverDevice(mediaQuery.matches);
 
-    const handleMediaChange = (e: MediaQueryListEvent) => {
-      setIsHoverDevice(e.matches);
+    const handlePointerMove = (e: PointerEvent) => {
+      setPos({ x: e.clientX, y: e.clientY });
+      setIsVisible(true);
     };
 
-    mediaQuery.addEventListener("change", handleMediaChange);
-
-    const el = containerRef.current;
-    if (!el) return;
-
-    let targetX = -1000;
-    let targetY = -1000;
-    let currentX = -1000;
-    let currentY = -1000;
-    let rafId: number;
-
-    const onPointerMove = (e: PointerEvent) => {
-      targetX = e.clientX;
-      targetY = e.clientY;
-      el.style.opacity = "1";
+    const handlePointerLeave = () => {
+      setIsVisible(false);
     };
 
-    const onPointerLeave = () => {
-      el.style.opacity = "0";
-    };
-
-    const animate = () => {
-      // Smooth interpolation (lerp) for fluid cursor physics
-      currentX += (targetX - currentX) * 0.15;
-      currentY += (targetY - currentY) * 0.15;
-
-      el.style.setProperty("--spotlight-x", `${currentX.toFixed(1)}px`);
-      el.style.setProperty("--spotlight-y", `${currentY.toFixed(1)}px`);
-
-      rafId = requestAnimationFrame(animate);
-    };
-
-    window.addEventListener("pointermove", onPointerMove, { passive: true });
-    document.addEventListener("mouseleave", onPointerLeave);
-    rafId = requestAnimationFrame(animate);
+    window.addEventListener("pointermove", handlePointerMove, { passive: true });
+    document.addEventListener("mouseleave", handlePointerLeave);
 
     return () => {
-      mediaQuery.removeEventListener("change", handleMediaChange);
-      window.removeEventListener("pointermove", onPointerMove);
-      document.removeEventListener("mouseleave", onPointerLeave);
-      cancelAnimationFrame(rafId);
+      window.removeEventListener("pointermove", handlePointerMove);
+      document.removeEventListener("mouseleave", handlePointerLeave);
     };
   }, []);
 
   return (
     <>
-      {/* Desktop / Cursor-following ambient radial spotlight */}
-      <div
-        ref={containerRef}
-        aria-hidden="true"
-        className="pointer-events-none fixed inset-0 z-30 transition-opacity duration-300"
-        style={{
-          opacity: 0,
-          background: `radial-gradient(650px circle at var(--spotlight-x, -1000px) var(--spotlight-y, -1000px), rgba(16, 185, 129, 0.08), rgba(139, 92, 246, 0.045), transparent 75%)`,
-        }}
-      />
+      {/* Desktop Spotlight: Crisp 580px luminous cursor beam */}
+      {isHoverDevice && (
+        <div
+          aria-hidden="true"
+          className="pointer-events-none fixed inset-0 z-40 transition-opacity duration-200"
+          style={{
+            opacity: isVisible ? 1 : 0,
+            background: `radial-gradient(580px circle at ${pos.x}px ${pos.y}px, rgba(16, 185, 129, 0.18), rgba(139, 92, 246, 0.10), transparent 68%)`,
+          }}
+        />
+      )}
 
-      {/* Mobile / Touch subtle ambient top glow fallback */}
+      {/* Mobile / Touch Fallback: Soft top-center ambient halo */}
       {!isHoverDevice && (
         <div
           aria-hidden="true"
-          className="pointer-events-none fixed inset-x-0 top-0 z-10 h-80 opacity-50 blur-3xl"
+          className="pointer-events-none fixed inset-x-0 top-0 z-10 h-72 opacity-60 blur-3xl"
           style={{
-            background: `radial-gradient(circle at 50% 0%, rgba(16, 185, 129, 0.12), rgba(139, 92, 246, 0.06), transparent 70%)`,
+            background: `radial-gradient(circle at 50% 0%, rgba(16, 185, 129, 0.15), rgba(139, 92, 246, 0.08), transparent 70%)`,
           }}
         />
       )}
