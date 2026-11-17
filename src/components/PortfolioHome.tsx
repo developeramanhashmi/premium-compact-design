@@ -3,6 +3,7 @@ import { Header } from "./Header";
 import { Footer } from "./Footer";
 import { NetworkNodesCanvas } from "./NetworkNodesCanvas";
 import { DevTerminal } from "./DevTerminal";
+import { SpotlightGlow } from "./SpotlightGlow";
 import { PORTFOLIO_DATA, Project } from "@/data/portfolioData";
 import { Button } from "@/components/ui/button";
 import { 
@@ -71,6 +72,7 @@ export function PortfolioHome() {
 
   return (
     <div id="top" className="min-h-screen bg-neutral-950 text-neutral-100 selection:bg-primary/20 selection:text-primary">
+      <SpotlightGlow />
       <Header />
 
       {/* ================= HERO SECTION ================= */}
