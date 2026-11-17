@@ -77,13 +77,15 @@ export function DevTerminal({ isOpen, onClose }: DevTerminalProps) {
 
       case "skills":
         outputNode = (
-          <div className="space-y-2 text-xs">
-            {PORTFOLIO_DATA.skills.map((cat) => (
-              <div key={cat.category} className="space-y-0.5">
-                <span className="text-emerald-400 font-semibold">{cat.category}:</span>{" "}
-                <span className="text-neutral-300">{cat.items.join(" · ")}</span>
-              </div>
-            ))}
+          <div className="space-y-1.5 text-xs">
+            <div className="grid grid-cols-2 gap-1.5 pt-1">
+              {PORTFOLIO_DATA.skills.map((skill) => (
+                <div key={skill.name} className="flex items-center justify-between border-b border-white/5 pb-1">
+                  <span className="text-white font-medium">{skill.name}</span>
+                  <span className="text-emerald-400 font-mono text-[10px]">{skill.level}%</span>
+                </div>
+              ))}
+            </div>
           </div>
         );
         break;
