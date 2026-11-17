@@ -1,125 +1,923 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Activity, ArrowDown, ArrowDownToLine, ArrowLeft, ArrowRight, ArrowUpRight, Bell, BriefcaseBusiness, Check, ChevronDown, CircleHelp, FileText, FolderKanban, LayoutDashboard, LogOut, Mail, Menu, MoreHorizontal, Plus, Search, Settings2, Sparkles, UserRound, UsersRound, Wrench, X } from "lucide-react";
-import { useMemo, useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Switch } from "@/components/ui/switch";
-
-const initialProjects = [
-  { name: "Northstar Analytics", category: "Full-stack", status: "Published", updated: "2 hours ago", color: "mint" },
-  { name: "Sonder AI", category: "AI & Data", status: "Published", updated: "Yesterday", color: "violet" },
-  { name: "Form & Field", category: "Product design", status: "Draft", updated: "Oct 28, 2026", color: "amber" },
-];
-const messages = [
-  { initials: "SR", name: "Samira Rahman", email: "samira@formandfield.co", subject: "E-commerce redesign", date: "Today, 10:42 am", state: "New", color: "mint" },
-  { initials: "TM", name: "Tom Mitchell", email: "tom@orbitlabs.io", subject: "Product collaboration", date: "Today, 9:18 am", state: "New", color: "violet" },
-  { initials: "AK", name: "Ayesha Karim", email: "ayesha@northstar.studio", subject: "A quick introduction", date: "Yesterday", state: "Read", color: "amber" },
-];
-const navigation = [
-  { label: "Overview", icon: LayoutDashboard }, { label: "Profile", icon: UserRound }, { label: "Projects", icon: FolderKanban }, { label: "Skills", icon: Wrench }, { label: "Experience", icon: BriefcaseBusiness }, { label: "Testimonials", icon: UsersRound }, { label: "Articles", icon: FileText }, { label: "Inbox", icon: Mail, count: "2" },
-];
-const content: Record<string, string[]> = {
-  Profile: ["Hero headline & introduction", "About and personal story", "Social links and contact details", "Resume / CV"],
-  Skills: ["Frontend development", "Backend & data", "Cloud & DevOps", "Product and design tools"],
-  Experience: ["Independent Developer", "Product Engineer · Studio North", "Frontend Developer · Pixelworks"],
-  Testimonials: ["Sarah Khan · Founder, Northstar Studio", "Hassan Mir · Product Lead, Orbit Labs"],
-  Articles: ["The best interface is the one that gets out of the way", "A tiny checklist for shipping the first version", "What I learned from 28 projects and counting"],
-  Appearance: ["Cyberpunk Violet", "Emerald Matrix", "Minimal Titanium"],
-};
+import React, { useState, useEffect } from "react";
+import {
+  LayoutDashboard,
+  UserRound,
+  FolderKanban,
+  Wrench,
+  Mail,
+  LogOut,
+  Plus,
+  Trash2,
+  ExternalLink,
+  AlertCircle,
+  Save,
+  Lock,
+  Sparkles,
+  ShieldCheck,
+  Database,
+  RefreshCw,
+} from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({
     meta: [
-      { title: "Portfolio Studio — Aman Alam" },
-      { name: "description", content: "Aman Alam's portfolio content studio for projects, messages, skills, and site settings." },
-      { property: "og:title", content: "Portfolio Studio — Aman Alam" },
-      { property: "og:description", content: "Manage portfolio work, profile, and incoming inquiries." },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
+      { title: "Portfolio Admin Studio — Aman Alam" },
+      { name: "description", content: "Secure CMS and admin panel for Aman Alam's portfolio." },
+      { name: "robots", content: "noindex, nofollow" },
     ],
   }),
-  component: AdminStudio,
+  component: AdminPage,
 });
 
-function AdminStudio() {
-  const [active, setActive] = useState("Overview");
-  const [projects, setProjects] = useState(initialProjects);
-  const [contentItems, setContentItems] = useState(content);
-  const [query, setQuery] = useState("");
-  const [messageFilter, setMessageFilter] = useState("All messages");
-  const [editing, setEditing] = useState(false);
-  const [itemName, setItemName] = useState("");
-  const [feedback, setFeedback] = useState("");
-  const [mobileNav, setMobileNav] = useState(false);
-  const [motion, setMotion] = useState(true);
-  const [published, setPublished] = useState(true);
-  const [profile, setProfile] = useState("Aman Alam");
-  const currentItems = useMemo(() => (contentItems[active] ?? []).filter((item) => item.toLowerCase().includes(query.toLowerCase())), [active, contentItems, query]);
-  const filteredMessages = messages.filter((item) => (messageFilter === "All messages" || item.state === messageFilter) && `${item.name} ${item.email} ${item.subject}`.toLowerCase().includes(query.toLowerCase()));
+interface ProfileData {
+  id?: string;
+  name: string;
+  alternate_name?: string;
+  title: string;
+  badge?: string;
+  location?: string;
+  email: string;
+  github?: string;
+  twitter?: string;
+  linkedin?: string;
+  bio: string;
+}
 
-  const startAdd = () => { setItemName(""); setEditing(true); setFeedback(""); };
-  const saveItem = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    if (!itemName.trim()) return;
-    if (active === "Projects") setProjects((previous) => [{ name: itemName.trim(), category: "Full-stack", status: "Draft", updated: "Just now", color: "mint" }, ...previous]);
-    else if (contentItems[active]) setContentItems((previous) => ({ ...previous, [active]: [itemName.trim(), ...(previous[active] ?? [])] }));
-    else setProfile(itemName.trim());
-    setEditing(false);
-    setFeedback(`${active === "Overview" ? "Profile" : active.slice(0, -1) || active} saved`);
+interface ProjectData {
+  id: string;
+  tag: string;
+  title: string;
+  description: string;
+  tech: string[];
+  features: string[];
+  cta: string;
+  href: string;
+  github_href?: string;
+  display_order: number;
+}
+
+interface SkillData {
+  id?: string;
+  name: string;
+  category: string;
+  level: number;
+  display_order: number;
+}
+
+interface InboxMessage {
+  id: string;
+  name: string;
+  email: string;
+  subject?: string;
+  message: string;
+  is_read: boolean;
+  created_at: string;
+}
+
+function AdminPage() {
+  const [session, setSession] = useState<any>(null);
+  const [authLoading, setAuthLoading] = useState(true);
+
+  // Auth Form State
+  const [email, setEmail] = useState("amanalam0353@gmail.com");
+  const [password, setPassword] = useState("");
+  const [loginError, setLoginError] = useState("");
+  const [loginSubmitting, setLoginSubmitting] = useState(false);
+
+  // Dashboard Data State
+  const [activeTab, setActiveTab] = useState<"overview" | "profile" | "projects" | "skills" | "inbox">("overview");
+  const [feedback, setFeedback] = useState<{ type: "success" | "error"; text: string } | null>(null);
+
+  const [profile, setProfile] = useState<ProfileData | null>(null);
+  const [projects, setProjects] = useState<ProjectData[]>([]);
+  const [skills, setSkills] = useState<SkillData[]>([]);
+  const [inbox, setInbox] = useState<InboxMessage[]>([]);
+  const [loadingData, setLoadingData] = useState(false);
+
+  // New Project Form State
+  const [newProject, setNewProject] = useState({
+    id: "",
+    tag: "Web Development",
+    title: "",
+    description: "",
+    tech: "",
+    features: "",
+    cta: "Live Demo",
+    href: "",
+    github_href: "",
+  });
+
+  // New Skill Form State
+  const [newSkill, setNewSkill] = useState({
+    name: "",
+    category: "Core",
+    level: 85,
+  });
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setAuthLoading(false);
+    });
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+      setAuthLoading(false);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    if (session) {
+      loadAllData();
+    }
+  }, [session]);
+
+  const showFeedback = (type: "success" | "error", text: string) => {
+    setFeedback({ type, text });
+    setTimeout(() => setFeedback(null), 4000);
   };
 
-  return <main className="admin-shell">
-    <aside className={mobileNav ? "admin-sidebar sidebar-open" : "admin-sidebar"}>
-      <div className="admin-brand"><span className="brand-symbol">a.</span><div><strong>PORTFOLIO</strong><span>STUDIO</span></div><Button variant="ghost" size="icon" className="sidebar-close" aria-label="Close menu" onClick={() => setMobileNav(false)}><X /></Button></div>
-      <div className="workspace-label">WORKSPACE <span>PERSONAL</span></div>
-      <nav className="admin-nav" aria-label="Admin navigation">{navigation.map(({ label, icon: Icon, count }) => <Button key={label} variant="ghost" className={active === label ? "admin-nav-item nav-selected" : "admin-nav-item"} onClick={() => { setActive(label); setQuery(""); setMobileNav(false); setFeedback(""); }}><Icon /><span>{label}</span>{count && <span className="nav-count">{count}</span>}</Button>)}</nav>
-      <div className="sidebar-spacer" />
-      <div className="sidebar-tip"><Sparkles /><p>Small updates make a big difference.</p><span>Keep your portfolio fresh.</span></div>
-      <Button variant="ghost" className="admin-nav-item" onClick={() => setActive("Appearance")}><Settings2 /><span>Settings</span></Button>
-      <div className="sidebar-user"><span className="user-avatar">AA</span><div><strong>{profile}</strong><span>Portfolio owner</span></div><Button variant="ghost" size="icon" aria-label="Account options"><MoreHorizontal /></Button></div>
-    </aside>
-    {mobileNav && <button className="admin-scrim" aria-label="Close menu overlay" onClick={() => setMobileNav(false)} />}
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoginError("");
+    setLoginSubmitting(true);
 
-    <div className="admin-main"><header className="admin-topbar"><Button variant="ghost" size="icon" className="mobile-nav-toggle" aria-label="Open navigation" onClick={() => setMobileNav(true)}><Menu /></Button><div className="breadcrumbs"><span>Portfolio</span><span>/</span><strong>{active}</strong></div><div className="topbar-actions"><span className="saved-indicator"><span /> All changes saved</span><Button variant="outline" size="sm" className="view-site" onClick={() => { window.location.href = "/"; }}>View site <ArrowUpRight /></Button><Button variant="ghost" size="icon" aria-label="Notifications"><Bell /><i /></Button></div></header>
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: email.trim(),
+      password: password.trim(),
+    });
 
-      <div className="admin-content"><div className="page-title-row"><div><p className="admin-date">SUNDAY, NOVEMBER 15, 2026 <span>·</span> DHAKA, BD</p><h1>{active === "Overview" ? <>Good afternoon, <em>Aman.</em></> : active}</h1><p className="page-subtitle">{active === "Overview" ? "Here's what's happening with your portfolio." : sectionDescription(active)}</p></div><div className="page-actions">{active === "Overview" && <Button variant="outline" size="sm" onClick={() => setFeedback("Your overview is up to date.")}><Activity /> Last 30 days <ChevronDown /></Button>}{!["Overview", "Inbox", "Appearance"].includes(active) && <Button size="sm" onClick={startAdd}><Plus /> Add {active === "Profile" ? "content" : active.slice(0, -1)}</Button>}</div></div>
-        {feedback && <div className="admin-feedback" role="status"><Check /> {feedback}<Button variant="ghost" size="icon" aria-label="Dismiss notice" onClick={() => setFeedback("")}><X /></Button></div>}
+    setLoginSubmitting(false);
 
-        {active === "Overview" && <>
-          <div className="overview-stats">{[["PROJECT VIEWS", "12,480", "+18.6%", "from last month"], ["INQUIRIES", "08", "+02", "since last month"], ["ACTIVE PROJECTS", "06", "03", "featured on site"], ["RESUME DOWNLOADS", "164", "+12.4%", "from last month"]].map(([label, value, delta, note], index) => <article className="stat-tile" key={label}><div className="tile-top"><span>{label}</span><span className={index === 2 ? "tile-icon violet-icon" : "tile-icon"}>{[<Activity key="v" />, <Mail key="m" />, <FolderKanban key="f" />, <ArrowDownToLine key="d" />][index]}</span></div><div className="tile-value-row"><strong>{value}</strong><span className={index === 1 ? "delta-neutral" : "delta-up"}>{index === 1 ? "↗" : "↑"} {delta}</span></div><span className="tile-note">{note}</span><div className="tile-sparkline"><span /><span /><span /><span /><span /><span /><span /><span /></div></article>)}</div>
+    if (error) {
+      setLoginError(error.message);
+    } else {
+      setSession(data.session);
+    }
+  };
 
-          <div className="overview-grid"><section className="admin-panel recent-panel"><div className="panel-heading"><div><h2>Recent inquiries</h2><p>New conversations from your contact form</p></div><Button variant="ghost" size="sm" onClick={() => setActive("Inbox")}>View inbox <ArrowRight /></Button></div><div className="mini-inbox">{messages.slice(0, 3).map((message) => <button className="mini-message" key={message.email} onClick={() => setActive("Inbox")}><span className={`message-avatar avatar-${message.color}`}>{message.initials}</span><span className="mini-message-text"><strong>{message.name}</strong><span>{message.subject}</span></span><span className="mini-date">{message.date.split(",")[0]}<i className={message.state === "New" ? "new-dot" : ""} /></span></button>)}</div><div className="inbox-footer"><span><span className="new-dot" /> 2 unread messages</span><span>Reply time <strong>~ 4 hours</strong></span></div></section>
-          <section className="admin-panel activity-panel"><div className="panel-heading"><div><h2>Portfolio activity</h2><p>Visitor engagement · last 7 days</p></div><Button variant="ghost" size="icon" aria-label="More activity options"><MoreHorizontal /></Button></div><div className="chart-legend"><span><i /> Views</span><span className="legend-download"><i /> Downloads</span></div><div className="activity-chart" aria-label="Visitor activity over seven days"><div className="chart-y-labels"><span>1.2k</span><span>800</span><span>400</span><span>0</span></div><div className="chart-plot"><span className="chart-grid grid-one" /><span className="chart-grid grid-two" /><span className="chart-grid grid-three" /><svg viewBox="0 0 420 140" preserveAspectRatio="none" role="img" aria-label="Rising views and downloads line chart"><path className="chart-area" d="M0 110 C35 95 42 106 70 86 S116 94 140 72 S184 80 210 55 S252 78 280 48 S322 65 350 38 S390 50 420 16 V140 H0Z"/><path className="chart-line" d="M0 110 C35 95 42 106 70 86 S116 94 140 72 S184 80 210 55 S252 78 280 48 S322 65 350 38 S390 50 420 16"/><path className="chart-secondary" d="M0 127 C40 118 52 125 78 112 S116 122 145 107 S187 112 215 95 S258 110 285 87 S325 101 352 81 S393 94 420 73"/></svg><div className="chart-x-labels"><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span></div></div></div><div className="chart-summary"><span><strong>12.4k</strong> total views</span><span className="summary-change">↗ 18.6% vs last week</span></div></section></div>
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    setSession(null);
+  };
 
-          <section className="admin-panel projects-panel"><div className="panel-heading"><div><h2>Projects</h2><p>Your latest published work</p></div><Button variant="ghost" size="sm" onClick={() => setActive("Projects")}>Manage projects <ArrowRight /></Button></div><ProjectTable projects={projects.slice(0, 3)} onToggle={(name) => { setProjects((list) => list.map((project) => project.name === name ? { ...project, status: project.status === "Draft" ? "Published" : "Draft" } : project)); setFeedback("Project status updated."); }} /></section>
-        </>}
+  const loadAllData = async () => {
+    setLoadingData(true);
+    try {
+      const [profRes, projRes, skillRes, inboxRes] = await Promise.all([
+        supabase.from("profile").select("*").limit(1).maybeSingle(),
+        supabase.from("projects").select("*").order("display_order", { ascending: true }),
+        supabase.from("skills").select("*").order("display_order", { ascending: true }),
+        supabase.from("inbox").select("*").order("created_at", { ascending: false }),
+      ]);
 
-        {active === "Projects" && <section className="admin-panel manager-panel"><div className="panel-heading"><div><h2>All projects <span className="small-count">{projects.length}</span></h2><p>Manage the work featured on your portfolio.</p></div><Button size="sm" onClick={startAdd}><Plus /> New project</Button></div><div className="table-tools"><label className="table-search"><Search /><Input aria-label="Search projects" placeholder="Search projects..." value={query} onChange={(event) => setQuery(event.target.value)} /></label><Button variant="outline" size="sm" onClick={() => setFeedback("Project list ready to export.")}><ArrowDown /> Export</Button></div><ProjectTable projects={projects.filter((project) => project.name.toLowerCase().includes(query.toLowerCase()))} onToggle={(name) => { setProjects((list) => list.map((project) => project.name === name ? { ...project, status: project.status === "Draft" ? "Published" : "Draft" } : project)); setFeedback("Project status updated."); }} /></section>}
+      if (profRes.data) setProfile(profRes.data as ProfileData);
+      if (projRes.data) setProjects(projRes.data as ProjectData[]);
+      if (skillRes.data) setSkills(skillRes.data as SkillData[]);
+      if (inboxRes.data) setInbox(inboxRes.data as InboxMessage[]);
+    } catch (err: any) {
+      showFeedback("error", "Error loading data: " + err.message);
+    } finally {
+      setLoadingData(false);
+    }
+  };
 
-        {active === "Inbox" && <section className="admin-panel manager-panel inbox-manager"><div className="panel-heading"><div><h2>Your inquiries <span className="small-count">{filteredMessages.length}</span></h2><p>Messages submitted through your portfolio.</p></div><Button variant="outline" size="sm" onClick={() => setFeedback("Inquiry list ready to export.")}><ArrowDown /> Export</Button></div><div className="table-tools"><label className="table-search"><Search /><Input aria-label="Search inquiries" placeholder="Search name, email, or subject..." value={query} onChange={(event) => setQuery(event.target.value)} /></label><div className="status-filters">{["All messages", "New", "Read"].map((state) => <Button key={state} size="sm" variant={messageFilter === state ? "secondary" : "ghost"} aria-pressed={messageFilter === state} onClick={() => setMessageFilter(state)}>{state}</Button>)}</div></div><div className="inquiry-list">{filteredMessages.map((message) => <button className="inquiry-row" key={message.email} onClick={() => setFeedback(`Opened conversation with ${message.name}.`)}><span className={`message-avatar avatar-${message.color}`}>{message.initials}</span><span className="inquiry-sender"><strong>{message.name}</strong><span>{message.email}</span></span><span className="inquiry-subject">{message.subject}</span><span className="inquiry-date">{message.date}</span><span className={message.state === "New" ? "status-badge status-new" : "status-badge status-read"}>{message.state}</span><ArrowUpRight className="inquiry-open" /></button>)}</div><div className="inbox-footnote"><CircleHelp /> Sample inquiries shown for layout preview.</div></section>}
+  const handleSaveProfile = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!profile) return;
 
-        {active === "Appearance" && <div className="settings-grid"><section className="admin-panel setting-panel"><div className="panel-heading"><div><h2>Color direction</h2><p>Choose a mood for your public portfolio.</p></div></div><div className="theme-options">{[["Cyberpunk Violet", "theme-violet"], ["Emerald Matrix", "theme-emerald"], ["Minimal Titanium", "theme-titanium"]].map(([theme, className], index) => <button key={theme} onClick={() => setFeedback(`${theme} selected.`)} className={`theme-option ${index === 1 ? "theme-selected" : ""}`}><span className={`theme-swatch ${className}`}><i /><i /><i /></span><span>{theme}</span>{index === 1 && <Check />}</button>)}</div></section><section className="admin-panel setting-panel"><div className="panel-heading"><div><h2>Motion & publishing</h2><p>Small controls for your live site.</p></div></div><div className="setting-row"><span><strong>Portfolio live</strong><small>Visitors can see your site.</small></span><Switch checked={published} onCheckedChange={setPublished} aria-label="Portfolio live" /></div><div className="setting-row"><span><strong>Motion effects</strong><small>Subtle movement across your pages.</small></span><Switch checked={motion} onCheckedChange={setMotion} aria-label="Motion effects" /></div><div className="setting-row"><span><strong>SEO details</strong><small>Page titles and social descriptions.</small></span><Button variant="outline" size="sm" onClick={() => setFeedback("SEO details are ready to edit.")}>Edit <ArrowRight /></Button></div></section></div>}
+    const { error } = await supabase
+      .from("profile")
+      .update({
+        name: profile.name,
+        alternate_name: profile.alternate_name,
+        title: profile.title,
+        badge: profile.badge,
+        location: profile.location,
+        email: profile.email,
+        github: profile.github,
+        twitter: profile.twitter,
+        linkedin: profile.linkedin,
+        bio: profile.bio,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", profile.id);
 
-        {active === "Profile" && <section className="admin-panel profile-panel"><div className="panel-heading"><div><h2>Public profile</h2><p>The details visitors see first.</p></div><Button size="sm" onClick={() => setFeedback("Profile changes saved.")}><Check /> Save changes</Button></div><div className="profile-form"><div className="profile-avatar-large">AA<Button variant="outline" size="sm" onClick={() => setFeedback("Profile photo upload can be connected next.")}>Change photo</Button></div><div className="profile-fields"><label>Display name<Input value={profile} onChange={(event) => setProfile(event.target.value)} /></label><label>Professional title<Input defaultValue="Developer & digital creator" /></label><label>Short introduction<textarea defaultValue="I build thoughtful digital products, from a first sketch to the final detail." rows={3} /></label><label>Email address<Input defaultValue="hello@amanalam.dev" /></label></div></div></section>}
+    if (error) {
+      showFeedback("error", "Failed to update profile: " + error.message);
+    } else {
+      showFeedback("success", "Profile updated successfully!");
+    }
+  };
 
-        {active === "Skills" && <section className="admin-panel manager-panel"><div className="panel-heading"><div><h2>Skills & tools <span className="small-count">{currentItems.length}</span></h2><p>Organize the tools and skills on your portfolio.</p></div><Button size="sm" onClick={startAdd}><Plus /> Add skill</Button></div><div className="skill-manager-grid">{currentItems.map((item, index) => <div className="skill-manager-row" key={item}><span className="skill-manager-icon">{["R", "B", "C", "P"][index % 4]}</span><span><strong>{item}</strong><small>{index % 2 ? "Intermediate" : "Advanced"} · {index + 2} years</small></span><span className="level-indicator"><i style={{ width: `${[88, 73, 61][index % 3]}%` }} /></span><Button variant="ghost" size="icon" aria-label={`Edit ${item}`} onClick={() => { setItemName(item); setEditing(true); }}><MoreHorizontal /></Button></div>)}</div></section>}
+  const handleAddProject = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newProject.title || !newProject.href) {
+      showFeedback("error", "Project Title and Live Link are required.");
+      return;
+    }
 
-        {active === "Experience" && <section className="admin-panel manager-panel"><div className="panel-heading"><div><h2>Experience timeline <span className="small-count">{currentItems.length}</span></h2><p>Your professional experience, in order.</p></div><Button size="sm" onClick={startAdd}><Plus /> Add role</Button></div><div className="content-list">{currentItems.map((item, index) => <article key={item} className="content-list-row"><span className="content-list-icon"><BriefcaseBusiness /></span><div><strong>{item}</strong><span>{["2023 — Present · Dhaka", "2021 — 2023 · Remote", "2019 — 2021 · Dhaka"][index % 3]}</span></div><span className="list-end">{index === 0 ? "Current role" : "Experience"}</span><Button variant="ghost" size="icon" aria-label={`Edit ${item}`} onClick={() => { setItemName(item); setEditing(true); }}><MoreHorizontal /></Button></article>)}</div></section>}
+    const projectId = newProject.id.trim() || `proj-${Date.now().toString().slice(-4)}`;
+    const techArray = newProject.tech.split(",").map((s) => s.trim()).filter(Boolean);
+    const featArray = newProject.features.split(",").map((s) => s.trim()).filter(Boolean);
 
-        {!["Overview", "Projects", "Inbox", "Appearance", "Profile", "Skills", "Experience"].includes(active) && <section className="admin-panel manager-panel"><div className="panel-heading"><div><h2>{active} <span className="small-count">{currentItems.length}</span></h2><p>Manage what's shown on your public portfolio.</p></div><Button size="sm" onClick={startAdd}><Plus /> Add {active.slice(0, -1).toLowerCase()}</Button></div><div className="content-list">{currentItems.map((item, index) => <article key={`${item}-${index}`} className="content-list-row"><span className="content-list-icon">{active === "Articles" ? <FileText /> : <UsersRound />}</span><div><strong>{item}</strong><span>{active === "Articles" ? `Draft · Updated ${index + 1} days ago` : "Visible on portfolio · Added recently"}</span></div><span className="list-end">{active === "Articles" ? index === 0 ? "Published" : "Draft" : "Visible"}</span><Button variant="ghost" size="icon" aria-label={`Edit ${item}`} onClick={() => { setItemName(item); setEditing(true); }}><MoreHorizontal /></Button></article>)}</div></section>}
+    const payload: ProjectData = {
+      id: projectId,
+      tag: newProject.tag,
+      title: newProject.title.trim(),
+      description: newProject.description.trim(),
+      tech: techArray,
+      features: featArray,
+      cta: newProject.cta || "Live Demo",
+      href: newProject.href.trim(),
+      github_href: newProject.github_href.trim() || undefined,
+      display_order: projects.length + 1,
+    };
 
-        <footer className="admin-footer"><span>PORTFOLIO STUDIO <span>·</span> AMAN ALAM</span><a href="mailto:hello@amanalam.dev">Need a hand? <CircleHelp /></a><span>Changes saved automatically</span></footer>
+    const { error } = await supabase.from("projects").insert(payload);
+
+    if (error) {
+      showFeedback("error", "Failed to add project: " + error.message);
+    } else {
+      setProjects([...projects, payload]);
+      setNewProject({
+        id: "",
+        tag: "Web Development",
+        title: "",
+        description: "",
+        tech: "",
+        features: "",
+        cta: "Live Demo",
+        href: "",
+        github_href: "",
+      });
+      showFeedback("success", "Project added successfully!");
+    }
+  };
+
+  const handleDeleteProject = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this project?")) return;
+
+    const { error } = await supabase.from("projects").delete().eq("id", id);
+    if (error) {
+      showFeedback("error", "Failed to delete: " + error.message);
+    } else {
+      setProjects(projects.filter((p) => p.id !== id));
+      showFeedback("success", "Project deleted.");
+    }
+  };
+
+  const handleAddSkill = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newSkill.name.trim()) return;
+
+    const payload = {
+      name: newSkill.name.trim(),
+      category: newSkill.category,
+      level: Number(newSkill.level),
+      display_order: skills.length + 1,
+    };
+
+    const { data, error } = await supabase.from("skills").insert(payload).select().single();
+
+    if (error) {
+      showFeedback("error", "Failed to add skill: " + error.message);
+    } else {
+      if (data) setSkills([...skills, data as SkillData]);
+      setNewSkill({ name: "", category: "Core", level: 85 });
+      showFeedback("success", "Skill added!");
+    }
+  };
+
+  const handleDeleteSkill = async (id?: string) => {
+    if (!id) return;
+    const { error } = await supabase.from("skills").delete().eq("id", id);
+    if (error) {
+      showFeedback("error", "Failed to delete skill: " + error.message);
+    } else {
+      setSkills(skills.filter((s) => s.id !== id));
+      showFeedback("success", "Skill deleted.");
+    }
+  };
+
+  const handleToggleMessageRead = async (msg: InboxMessage) => {
+    const { error } = await supabase
+      .from("inbox")
+      .update({ is_read: !msg.is_read })
+      .eq("id", msg.id);
+
+    if (error) {
+      showFeedback("error", error.message);
+    } else {
+      setInbox(inbox.map((m) => (m.id === msg.id ? { ...m, is_read: !m.is_read } : m)));
+    }
+  };
+
+  const handleDeleteMessage = async (id: string) => {
+    const { error } = await supabase.from("inbox").delete().eq("id", id);
+    if (error) {
+      showFeedback("error", error.message);
+    } else {
+      setInbox(inbox.filter((m) => m.id !== id));
+      showFeedback("success", "Message removed.");
+    }
+  };
+
+  // 1. Loading State
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-neutral-950 flex items-center justify-center p-4">
+        <div className="flex items-center gap-3 text-neutral-400 font-mono text-sm">
+          <RefreshCw className="size-4 animate-spin text-emerald-400" />
+          <span>Verifying studio credentials...</span>
+        </div>
+      </div>
+    );
+  }
+
+  // 2. Unauthenticated Login Screen
+  if (!session) {
+    return (
+      <div className="min-h-screen bg-neutral-950 text-white flex items-center justify-center p-4 relative overflow-hidden">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 size-[500px] bg-emerald-500/10 blur-[120px] rounded-full pointer-events-none" />
+
+        <div className="w-full max-w-md rounded-2xl border border-white/10 bg-neutral-900/80 backdrop-blur-xl p-8 shadow-2xl relative z-10">
+          <div className="text-center mb-8">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-emerald-500/20 bg-emerald-500/10 text-emerald-400 text-xs font-mono font-medium mb-3">
+              <ShieldCheck className="size-3.5" />
+              <span>Restricted Studio Access</span>
+            </div>
+            <h1 className="text-2xl font-bold font-display tracking-tight text-white">
+              Aman Studio Login
+            </h1>
+            <p className="text-xs text-neutral-400 mt-1">
+              Sign in to manage portfolio projects, skills, and client inquiries.
+            </p>
+          </div>
+
+          {loginError && (
+            <div className="mb-6 p-3 rounded-lg border border-red-500/20 bg-red-500/10 text-red-400 text-xs flex items-center gap-2">
+              <AlertCircle className="size-4 shrink-0" />
+              <span>{loginError}</span>
+            </div>
+          )}
+
+          <form onSubmit={handleLogin} className="space-y-4">
+            <div>
+              <label className="block text-xs font-mono text-neutral-300 mb-1.5">
+                Admin Email
+              </label>
+              <input
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full px-3.5 py-2.5 rounded-lg border border-white/10 bg-neutral-950/70 text-sm text-white placeholder-neutral-500 focus:outline-none focus:border-emerald-500/50 transition-colors"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-mono text-neutral-300 mb-1.5">
+                Password
+              </label>
+              <input
+                type="password"
+                required
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full px-3.5 py-2.5 rounded-lg border border-white/10 bg-neutral-950/70 text-sm text-white placeholder-neutral-500 focus:outline-none focus:border-emerald-500/50 transition-colors"
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={loginSubmitting}
+              className="w-full mt-2 inline-flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg bg-emerald-500 text-neutral-950 font-semibold text-xs uppercase tracking-wider hover:bg-emerald-400 transition-all disabled:opacity-50"
+            >
+              {loginSubmitting ? (
+                <>
+                  <RefreshCw className="size-3.5 animate-spin" />
+                  <span>Verifying...</span>
+                </>
+              ) : (
+                <>
+                  <Lock className="size-3.5" />
+                  <span>Enter Admin Studio</span>
+                </>
+              )}
+            </button>
+          </form>
+
+          <div className="mt-6 pt-6 border-t border-white/5 text-center">
+            <a
+              href="/"
+              className="text-xs text-neutral-400 hover:text-white transition-colors inline-flex items-center gap-1.5 font-mono"
+            >
+              <span>← Return to Public Portfolio</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // 3. Authenticated Studio
+  return (
+    <div className="min-h-screen bg-neutral-950 text-neutral-100 flex flex-col font-sans">
+      <header className="border-b border-white/10 bg-neutral-900/60 backdrop-blur-md sticky top-0 z-30 px-4 sm:px-8 py-3.5 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="size-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 font-bold text-sm">
+            A
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="font-semibold text-sm text-white">Portfolio Studio</span>
+              <span className="size-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="text-[10px] font-mono text-emerald-400 uppercase tracking-widest">
+                Cloud Synced
+              </span>
+            </div>
+            <p className="text-[11px] font-mono text-neutral-400">{session?.user?.email}</p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2 sm:gap-3">
+          <button
+            onClick={loadAllData}
+            title="Refresh Data"
+            className="p-2 rounded-lg border border-white/10 hover:bg-white/5 text-neutral-400 hover:text-white transition-colors"
+          >
+            <RefreshCw className={`size-4 ${loadingData ? "animate-spin text-emerald-400" : ""}`} />
+          </button>
+
+          <a
+            href="/"
+            target="_blank"
+            rel="noreferrer"
+            className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-white/10 text-xs font-mono text-neutral-300 hover:text-white hover:bg-white/5 transition-colors"
+          >
+            <span>Live Site</span>
+            <ExternalLink className="size-3 text-neutral-400" />
+          </a>
+
+          <button
+            onClick={handleLogout}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500/20 text-xs font-mono transition-colors"
+          >
+            <LogOut className="size-3.5" />
+            <span>Sign Out</span>
+          </button>
+        </div>
+      </header>
+
+      {feedback && (
+        <div
+          className={`px-4 sm:px-8 py-2.5 text-xs font-mono flex items-center justify-between transition-all ${
+            feedback.type === "success"
+              ? "bg-emerald-500/10 text-emerald-400 border-b border-emerald-500/20"
+              : "bg-red-500/10 text-red-400 border-b border-red-500/20"
+          }`}
+        >
+          <span>{feedback.text}</span>
+          <button onClick={() => setFeedback(null)} className="hover:opacity-75">
+            ✕
+          </button>
+        </div>
+      )}
+
+      <div className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-8 py-8 flex flex-col md:flex-row gap-8">
+        <aside className="w-full md:w-56 shrink-0 space-y-1">
+          {[
+            { id: "overview", label: "Overview", icon: LayoutDashboard },
+            { id: "profile", label: "Profile", icon: UserRound },
+            { id: "projects", label: "Projects", icon: FolderKanban, badge: projects.length },
+            { id: "skills", label: "Skills", icon: Wrench, badge: skills.length },
+            {
+              id: "inbox",
+              label: "Inbox",
+              icon: Mail,
+              badge: inbox.filter((m) => !m.is_read).length || undefined,
+            },
+          ].map((tab) => {
+            const Icon = tab.icon;
+            const active = activeTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id as any)}
+                className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-lg text-xs font-medium transition-all ${
+                  active
+                    ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                    : "text-neutral-400 hover:text-white hover:bg-white/5 border border-transparent"
+                }`}
+              >
+                <div className="flex items-center gap-2.5">
+                  <Icon className="size-4" />
+                  <span>{tab.label}</span>
+                </div>
+                {tab.badge !== undefined && tab.badge > 0 && (
+                  <span className="px-1.5 py-0.5 rounded-full text-[10px] font-mono bg-emerald-500/20 text-emerald-300">
+                    {tab.badge}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </aside>
+
+        <main className="flex-1 min-w-0">
+          {activeTab === "overview" && (
+            <div className="space-y-6">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                <div className="p-4 rounded-xl border border-white/10 bg-neutral-900/40">
+                  <p className="text-xs font-mono text-neutral-400">Total Projects</p>
+                  <p className="text-2xl font-bold font-mono text-white mt-1">{projects.length}</p>
+                </div>
+                <div className="p-4 rounded-xl border border-white/10 bg-neutral-900/40">
+                  <p className="text-xs font-mono text-neutral-400">Core Skills</p>
+                  <p className="text-2xl font-bold font-mono text-white mt-1">{skills.length}</p>
+                </div>
+                <div className="p-4 rounded-xl border border-white/10 bg-neutral-900/40">
+                  <p className="text-xs font-mono text-neutral-400">New Inquiries</p>
+                  <p className="text-2xl font-bold font-mono text-emerald-400 mt-1">
+                    {inbox.filter((m) => !m.is_read).length}
+                  </p>
+                </div>
+                <div className="p-4 rounded-xl border border-white/10 bg-neutral-900/40">
+                  <p className="text-xs font-mono text-neutral-400">Database</p>
+                  <p className="text-sm font-bold font-mono text-emerald-400 mt-2 flex items-center gap-1.5">
+                    <Database className="size-3.5" /> Connected
+                  </p>
+                </div>
+              </div>
+
+              <div className="p-6 rounded-2xl border border-white/10 bg-neutral-900/40 space-y-3">
+                <div className="flex items-center gap-2 text-white font-semibold text-sm">
+                  <Sparkles className="size-4 text-emerald-400" />
+                  <span>Aman Studio CMS Ready</span>
+                </div>
+                <p className="text-xs text-neutral-400 leading-relaxed">
+                  Your portfolio is connected to Lovable Cloud PostgreSQL with strict Row Level Security.
+                  Any changes you save in this panel immediately update the database.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {activeTab === "profile" && profile && (
+            <form onSubmit={handleSaveProfile} className="space-y-4">
+              <div className="flex items-center justify-between pb-3 border-b border-white/5">
+                <h2 className="text-lg font-bold text-white">Hero &amp; Profile Details</h2>
+                <button
+                  type="submit"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-emerald-500 text-neutral-950 font-semibold text-xs hover:bg-emerald-400 transition-colors"
+                >
+                  <Save className="size-3.5" />
+                  <span>Save Changes</span>
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-mono text-neutral-400 mb-1">Name</label>
+                  <input
+                    type="text"
+                    value={profile.name}
+                    onChange={(e) => setProfile({ ...profile, name: e.target.value })}
+                    className="w-full px-3 py-2 rounded-lg border border-white/10 bg-neutral-900 text-xs text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-mono text-neutral-400 mb-1">Headline Badge</label>
+                  <input
+                    type="text"
+                    value={profile.badge || ""}
+                    onChange={(e) => setProfile({ ...profile, badge: e.target.value })}
+                    className="w-full px-3 py-2 rounded-lg border border-white/10 bg-neutral-900 text-xs text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-mono text-neutral-400 mb-1">Professional Title</label>
+                  <input
+                    type="text"
+                    value={profile.title}
+                    onChange={(e) => setProfile({ ...profile, title: e.target.value })}
+                    className="w-full px-3 py-2 rounded-lg border border-white/10 bg-neutral-900 text-xs text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-mono text-neutral-400 mb-1">Location</label>
+                  <input
+                    type="text"
+                    value={profile.location || ""}
+                    onChange={(e) => setProfile({ ...profile, location: e.target.value })}
+                    className="w-full px-3 py-2 rounded-lg border border-white/10 bg-neutral-900 text-xs text-white"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-mono text-neutral-400 mb-1">Bio / Philosophy</label>
+                <textarea
+                  rows={3}
+                  value={profile.bio}
+                  onChange={(e) => setProfile({ ...profile, bio: e.target.value })}
+                  className="w-full px-3 py-2 rounded-lg border border-white/10 bg-neutral-900 text-xs text-white"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
+                <div>
+                  <label className="block text-xs font-mono text-neutral-400 mb-1">GitHub URL</label>
+                  <input
+                    type="text"
+                    value={profile.github || ""}
+                    onChange={(e) => setProfile({ ...profile, github: e.target.value })}
+                    className="w-full px-3 py-2 rounded-lg border border-white/10 bg-neutral-900 text-xs text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-mono text-neutral-400 mb-1">LinkedIn URL</label>
+                  <input
+                    type="text"
+                    value={profile.linkedin || ""}
+                    onChange={(e) => setProfile({ ...profile, linkedin: e.target.value })}
+                    className="w-full px-3 py-2 rounded-lg border border-white/10 bg-neutral-900 text-xs text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-mono text-neutral-400 mb-1">X / Twitter URL</label>
+                  <input
+                    type="text"
+                    value={profile.twitter || ""}
+                    onChange={(e) => setProfile({ ...profile, twitter: e.target.value })}
+                    className="w-full px-3 py-2 rounded-lg border border-white/10 bg-neutral-900 text-xs text-white"
+                  />
+                </div>
+              </div>
+            </form>
+          )}
+
+          {activeTab === "projects" && (
+            <div className="space-y-8">
+              <form onSubmit={handleAddProject} className="p-5 rounded-2xl border border-white/10 bg-neutral-900/40 space-y-4">
+                <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                  <Plus className="size-4 text-emerald-400" /> Add New Project
+                </h3>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-[11px] font-mono text-neutral-400 mb-1">Project Title *</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. Telemetry Engine"
+                      value={newProject.title}
+                      onChange={(e) => setNewProject({ ...newProject, title: e.target.value })}
+                      className="w-full px-3 py-1.5 rounded-lg border border-white/10 bg-neutral-950 text-xs text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-mono text-neutral-400 mb-1">Category / Tag</label>
+                    <select
+                      value={newProject.tag}
+                      onChange={(e) => setNewProject({ ...newProject, tag: e.target.value })}
+                      className="w-full px-3 py-1.5 rounded-lg border border-white/10 bg-neutral-950 text-xs text-white"
+                    >
+                      <option value="Data Analysis">Data Analysis</option>
+                      <option value="Dashboards">Dashboards</option>
+                      <option value="Web Development">Web Development</option>
+                      <option value="DEVGRONIX Work">DEVGRONIX Work</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-mono text-neutral-400 mb-1">Description</label>
+                  <textarea
+                    rows={2}
+                    placeholder="Brief description of the project..."
+                    value={newProject.description}
+                    onChange={(e) => setNewProject({ ...newProject, description: e.target.value })}
+                    className="w-full px-3 py-1.5 rounded-lg border border-white/10 bg-neutral-950 text-xs text-white"
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-[11px] font-mono text-neutral-400 mb-1">Tech Stack (comma-separated)</label>
+                    <input
+                      type="text"
+                      placeholder="Python, React, PostgreSQL"
+                      value={newProject.tech}
+                      onChange={(e) => setNewProject({ ...newProject, tech: e.target.value })}
+                      className="w-full px-3 py-1.5 rounded-lg border border-white/10 bg-neutral-950 text-xs text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-mono text-neutral-400 mb-1">Live URL *</label>
+                    <input
+                      type="url"
+                      required
+                      placeholder="https://..."
+                      value={newProject.href}
+                      onChange={(e) => setNewProject({ ...newProject, href: e.target.value })}
+                      className="w-full px-3 py-1.5 rounded-lg border border-white/10 bg-neutral-950 text-xs text-white"
+                    />
+                  </div>
+                </div>
+
+                <div className="text-right">
+                  <button
+                    type="submit"
+                    className="px-4 py-2 rounded-lg bg-emerald-500 text-neutral-950 font-semibold text-xs hover:bg-emerald-400 transition-colors"
+                  >
+                    + Add Project to Database
+                  </button>
+                </div>
+              </form>
+
+              <div className="space-y-3">
+                <h3 className="text-sm font-bold text-white">Live Projects ({projects.length})</h3>
+                <div className="space-y-2">
+                  {projects.map((proj) => (
+                    <div
+                      key={proj.id}
+                      className="p-4 rounded-xl border border-white/10 bg-neutral-900/30 flex items-center justify-between gap-4"
+                    >
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="font-semibold text-xs text-white">{proj.title}</span>
+                          <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-white/5 text-neutral-400 border border-white/5">
+                            {proj.tag}
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-neutral-400 truncate mt-1">{proj.description}</p>
+                      </div>
+
+                      <div className="flex items-center gap-2 shrink-0">
+                        <a
+                          href={proj.href}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="p-1.5 rounded hover:bg-white/10 text-neutral-400 hover:text-white"
+                        >
+                          <ExternalLink className="size-3.5" />
+                        </a>
+                        <button
+                          onClick={() => handleDeleteProject(proj.id)}
+                          className="p-1.5 rounded hover:bg-red-500/20 text-neutral-400 hover:text-red-400 transition-colors"
+                        >
+                          <Trash2 className="size-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === "skills" && (
+            <div className="space-y-6">
+              <form onSubmit={handleAddSkill} className="p-4 rounded-xl border border-white/10 bg-neutral-900/40 flex flex-wrap items-end gap-3">
+                <div className="flex-1 min-w-[140px]">
+                  <label className="block text-[11px] font-mono text-neutral-400 mb-1">Skill Name</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Next.js"
+                    value={newSkill.name}
+                    onChange={(e) => setNewSkill({ ...newSkill, name: e.target.value })}
+                    className="w-full px-3 py-1.5 rounded-lg border border-white/10 bg-neutral-950 text-xs text-white"
+                  />
+                </div>
+                <div className="w-32">
+                  <label className="block text-[11px] font-mono text-neutral-400 mb-1">Category</label>
+                  <select
+                    value={newSkill.category}
+                    onChange={(e) => setNewSkill({ ...newSkill, category: e.target.value })}
+                    className="w-full px-3 py-1.5 rounded-lg border border-white/10 bg-neutral-950 text-xs text-white"
+                  >
+                    <option value="Core">Core</option>
+                    <option value="Data Science">Data Science</option>
+                    <option value="Frontend">Frontend</option>
+                    <option value="Tools">Tools</option>
+                    <option value="Design">Design</option>
+                  </select>
+                </div>
+                <div className="w-24">
+                  <label className="block text-[11px] font-mono text-neutral-400 mb-1">Level %</label>
+                  <input
+                    type="number"
+                    min={1}
+                    max={100}
+                    value={newSkill.level}
+                    onChange={(e) => setNewSkill({ ...newSkill, level: Number(e.target.value) })}
+                    className="w-full px-3 py-1.5 rounded-lg border border-white/10 bg-neutral-950 text-xs text-white"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  className="px-4 py-2 rounded-lg bg-emerald-500 text-neutral-950 font-semibold text-xs hover:bg-emerald-400 transition-colors"
+                >
+                  + Add Skill
+                </button>
+              </form>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {skills.map((skill) => (
+                  <div
+                    key={skill.name}
+                    className="p-3 rounded-lg border border-white/10 bg-neutral-900/20 flex items-center justify-between gap-3"
+                  >
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-medium text-white">{skill.name}</span>
+                        <span className="text-[10px] font-mono text-neutral-500">({skill.category})</span>
+                      </div>
+                      <div className="w-24 h-1 bg-white/10 rounded-full mt-1.5 overflow-hidden">
+                        <div className="h-full bg-emerald-400 rounded-full" style={{ width: `${skill.level}%` }} />
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-mono text-emerald-400">{skill.level}%</span>
+                      <button
+                        onClick={() => handleDeleteSkill(skill.id)}
+                        className="p-1 rounded hover:bg-red-500/20 text-neutral-500 hover:text-red-400 transition-colors"
+                      >
+                        <Trash2 className="size-3" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {activeTab === "inbox" && (
+            <div className="space-y-4">
+              <h3 className="text-sm font-bold text-white">Client Messages &amp; Inquiries ({inbox.length})</h3>
+              {inbox.length === 0 ? (
+                <div className="p-8 rounded-xl border border-white/5 bg-neutral-900/20 text-center text-xs font-mono text-neutral-500">
+                  No incoming messages yet.
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {inbox.map((msg) => (
+                    <div
+                      key={msg.id}
+                      className={`p-4 rounded-xl border transition-all ${
+                        msg.is_read
+                          ? "border-white/5 bg-neutral-900/20 opacity-75"
+                          : "border-emerald-500/30 bg-emerald-500/5"
+                      }`}
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span className="font-semibold text-xs text-white">{msg.name}</span>
+                            <span className="text-xs font-mono text-emerald-400">({msg.email})</span>
+                          </div>
+                          {msg.subject && (
+                            <p className="text-xs font-medium text-neutral-300 mt-1">{msg.subject}</p>
+                          )}
+                          <p className="text-xs text-neutral-400 mt-1 leading-relaxed">{msg.message}</p>
+                          <p className="text-[10px] font-mono text-neutral-500 mt-2">
+                            {new Date(msg.created_at).toLocaleString()}
+                          </p>
+                        </div>
+
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          <button
+                            onClick={() => handleToggleMessageRead(msg)}
+                            className="px-2 py-1 rounded text-[10px] font-mono border border-white/10 hover:bg-white/10 text-neutral-300"
+                          >
+                            {msg.is_read ? "Mark Unread" : "Mark Read"}
+                          </button>
+                          <button
+                            onClick={() => handleDeleteMessage(msg.id)}
+                            className="p-1 rounded hover:bg-red-500/20 text-neutral-400 hover:text-red-400"
+                          >
+                            <Trash2 className="size-3.5" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+        </main>
       </div>
     </div>
-    {editing && <div className="modal-backdrop" role="presentation" onClick={(event) => { if (event.target === event.currentTarget) setEditing(false); }}><form className="admin-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title" onSubmit={saveItem}><div className="modal-top"><div><span className="section-kicker"><span>NEW</span> PORTFOLIO CONTENT</span><h2 id="modal-title">{itemName ? "Edit entry" : `Add ${active === "Projects" ? "project" : active === "Profile" ? "profile detail" : active.slice(0, -1).toLowerCase()}`}</h2></div><Button type="button" variant="ghost" size="icon" aria-label="Close" onClick={() => setEditing(false)}><X /></Button></div><label>Title or name<Input autoFocus value={itemName} onChange={(event) => setItemName(event.target.value)} placeholder={`Enter ${active.toLowerCase()} name`} /></label>{active === "Projects" && <><label>Short description<Input placeholder="What does this project do?" /></label><label>Category<select defaultValue="Full-stack"><option>Full-stack</option><option>AI & Data</option><option>Product design</option></select></label></>}<div className="modal-actions"><Button type="button" variant="ghost" onClick={() => setEditing(false)}>Cancel</Button><Button type="submit"><Check /> Save {active === "Projects" ? "project" : "changes"}</Button></div><p className="prototype-note">This preview keeps changes in this browser session.</p></form></div>}
-  </main>;
-}
-
-function sectionDescription(section: string) {
-  const descriptions: Record<string, string> = { Profile: "Keep your details current and make a great first impression.", Projects: "Add, organize, and feature your selected work.", Skills: "Show the tools and technologies you work with.", Experience: "Your career journey and the good work along the way.", Testimonials: "Kind words from people you've worked with.", Articles: "Ideas, field notes, and things you've learned.", Inbox: "Every conversation starts somewhere.", Appearance: "Tune the look and feel of your public site." };
-  return descriptions[section] ?? "Manage your portfolio content.";
-}
-
-function ProjectTable({ projects, onToggle }: { projects: typeof initialProjects; onToggle: (name: string) => void }) {
-  return <div className="projects-table-wrap"><table className="projects-table"><thead><tr><th>PROJECT</th><th>CATEGORY</th><th>STATUS</th><th>LAST UPDATED</th><th aria-label="Actions" /></tr></thead><tbody>{projects.map((project) => <tr key={project.name}><td><span className={`project-thumb thumb-${project.color}`}>{project.name.charAt(0)}</span><strong>{project.name}</strong></td><td>{project.category}</td><td><button className={project.status === "Published" ? "status-badge status-published" : "status-badge status-draft"} onClick={() => onToggle(project.name)} aria-label={`Change ${project.name} status`}>{project.status === "Published" && <i />}{project.status}</button></td><td>{project.updated}</td><td><Button variant="ghost" size="icon" aria-label={`Project options for ${project.name}`}><MoreHorizontal /></Button></td></tr>)}</tbody></table>{projects.length === 0 && <div className="empty-state">No projects match that search.</div>}</div>;
+  );
 }
