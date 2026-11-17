@@ -69,7 +69,7 @@ export function NetworkNodesCanvas() {
           vx: (Math.random() - 0.5) * 0.5,
           vy: (Math.random() - 0.5) * 0.5,
           radius: Math.random() * 1.5 + 1.2,
-          color: colors[Math.floor(Math.random() * colors.length)],
+          color: colors[Math.floor(Math.random() * colors.length)] ?? "rgba(16, 185, 129, 0.7)",
         });
       }
     };
