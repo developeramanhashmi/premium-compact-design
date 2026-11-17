@@ -76,7 +76,7 @@ export function CodeShowcase() {
   const [activeTab, setActiveTab] = useState(0);
   const [copied, setCopied] = useState(false);
 
-  const currentFile = FILES[activeTab];
+  const currentFile = FILES[activeTab] ?? FILES[0]!;
 
   const handleCopy = async () => {
     try {
