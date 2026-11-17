@@ -371,108 +371,107 @@ export function PortfolioHome() {
         </div>
       </section>
 
-      {/* ================= CONTACT SECTION (AI & PREMIUM LOOK) ================= */}
-      <section id="contact" className="py-20 relative">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="rounded-3xl border border-white/15 bg-neutral-900/70 p-8 md:p-12 backdrop-blur-2xl relative overflow-hidden shadow-2xl shadow-primary/5">
-            {/* Ambient Background Glow */}
-            <div className="absolute top-0 right-0 w-[28rem] h-[28rem] bg-gradient-to-bl from-primary/20 via-cyan-500/10 to-transparent rounded-full blur-3xl pointer-events-none" />
+      {/* ================= CONTACT SECTION (COMPACT & PREMIUM) ================= */}
+      <section id="contact" className="py-14 sm:py-16 relative">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="rounded-2xl border border-white/10 bg-neutral-900/60 p-6 sm:p-8 md:p-10 backdrop-blur-xl relative overflow-hidden shadow-2xl">
+            {/* Subtle Ambient Corner Glow */}
+            <div className="pointer-events-none absolute -top-24 -right-24 size-80 rounded-full bg-gradient-to-bl from-primary/20 via-cyan-500/10 to-transparent blur-3xl" />
 
-            <div className="max-w-2xl relative z-10">
-              {/* AI Live Status Badge */}
-              <div className="inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3.5 py-1 text-xs font-mono text-emerald-400 mb-4">
-                <span className="size-2 rounded-full bg-emerald-400 animate-ping shrink-0" />
-                <span className="size-2 rounded-full bg-emerald-400 -ml-4 shrink-0" />
-                <span>Inbox Live • Verified Direct Delivery</span>
+            <div className="relative z-10 grid gap-8 md:grid-cols-5 items-center">
+              {/* Left Column: Direct Pitch & Quick Email */}
+              <div className="md:col-span-2 space-y-3">
+                <div className="inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-[11px] font-mono text-emerald-400">
+                  <span className="size-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                  <span>Available for Q1/Q2</span>
+                </div>
+
+                <h2 className="text-2xl sm:text-3xl font-display font-bold tracking-tight text-white leading-tight">
+                  Let’s build something scalable.
+                </h2>
+
+                <p className="text-xs text-neutral-400 leading-relaxed">
+                  Direct line for full-stack engineering, AI data telemetry, or agency partnerships via{" "}
+                  <strong className="text-white">DEVGRONIX</strong>.
+                </p>
+
+                <div className="pt-1">
+                  <a
+                    href="mailto:amanalam0353@gmail.com"
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-neutral-950/60 px-3 py-1.5 font-mono text-xs text-neutral-300 hover:border-primary/40 hover:text-white transition"
+                  >
+                    <Mail className="size-3 text-primary" />
+                    <span>amanalam0353@gmail.com</span>
+                  </a>
+                </div>
               </div>
 
-              <h2 className="text-3xl sm:text-4xl font-display font-bold tracking-tight text-white">
-                Interested in working together?
-              </h2>
-              <p className="text-sm text-neutral-400 mt-2 leading-relaxed">
-                Direct channel for client inquiries, data contracts, and full-stack partnerships via{" "}
-                <strong className="text-white">DEVGRONIX</strong>.
-              </p>
-
-              {formSent ? (
-                <div className="mt-8 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-6 text-center animate-fade-in">
-                  <div className="inline-flex size-12 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-400 mb-3">
-                    <CheckCircle2 className="size-6" />
+              {/* Right Column: Snug Compact Form */}
+              <div className="md:col-span-3">
+                {formSent ? (
+                  <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-5 text-center">
+                    <CheckCircle2 className="size-8 text-emerald-400 mx-auto mb-2" />
+                    <h3 className="text-sm font-bold text-white">Message Transmitted!</h3>
+                    <p className="text-xs text-neutral-300 mt-1">
+                      Aman will review your note and respond shortly.
+                    </p>
                   </div>
-                  <h3 className="text-lg font-bold text-white">Message Delivered Successfully!</h3>
-                  <p className="text-xs text-neutral-300 mt-1 max-w-md mx-auto">
-                    Aapka message deliver ho gaya hai. Aman aapse jald hi email par connect karenge.
-                  </p>
-                </div>
-              ) : (
-                <form onSubmit={handleContactSubmit} className="mt-8 space-y-4">
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <div>
+                ) : (
+                  <form onSubmit={handleContactSubmit} className="space-y-3">
+                    <div className="grid gap-3 sm:grid-cols-2">
                       <input
                         type="text"
                         name="name"
                         required
-                        placeholder="Your Name / Company"
-                        className="w-full rounded-xl border border-white/10 bg-neutral-950/70 px-4 py-3.5 text-xs sm:text-sm text-white placeholder:text-neutral-500 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-hidden transition"
+                        placeholder="Your Name / Org"
+                        className="w-full rounded-lg border border-white/10 bg-neutral-950/80 px-3.5 py-2.5 text-xs text-white placeholder:text-neutral-500 focus:border-primary focus:ring-1 focus:ring-primary focus:outline-hidden transition"
                       />
-                    </div>
-                    <div>
                       <input
                         type="email"
                         name="email"
                         required
-                        placeholder="Your Work Email"
-                        className="w-full rounded-xl border border-white/10 bg-neutral-950/70 px-4 py-3.5 text-xs sm:text-sm text-white placeholder:text-neutral-500 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-hidden transition"
+                        placeholder="Work Email"
+                        className="w-full rounded-lg border border-white/10 bg-neutral-950/80 px-3.5 py-2.5 text-xs text-white placeholder:text-neutral-500 focus:border-primary focus:ring-1 focus:ring-primary focus:outline-hidden transition"
                       />
                     </div>
-                  </div>
 
-                  <div>
                     <textarea
                       name="message"
                       required
-                      rows={4}
-                      placeholder="Tell me about your project, team, or data requirements..."
-                      className="w-full rounded-xl border border-white/10 bg-neutral-950/70 px-4 py-3.5 text-xs sm:text-sm text-white placeholder:text-neutral-500 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-hidden transition resize-none"
+                      rows={3}
+                      placeholder="Project details, timeline, or data goals..."
+                      className="w-full rounded-lg border border-white/10 bg-neutral-950/80 px-3.5 py-2.5 text-xs text-white placeholder:text-neutral-500 focus:border-primary focus:ring-1 focus:ring-primary focus:outline-hidden transition resize-none"
                     />
-                  </div>
 
-                  {formError && (
-                    <p className="text-xs text-red-400">{formError}</p>
-                  )}
+                    {formError && (
+                      <p className="text-xs text-red-400">{formError}</p>
+                    )}
 
-                  <div className="flex flex-wrap items-center gap-3 pt-2">
                     <button
                       type="submit"
                       disabled={isSubmitting}
-                      className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-primary via-cyan-400 to-sky-300 px-6 py-3.5 text-xs sm:text-sm font-bold text-neutral-950 shadow-lg shadow-primary/20 hover:shadow-primary/40 active:scale-95 disabled:opacity-50 transition"
+                      className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-primary via-cyan-400 to-sky-300 px-5 py-2.5 text-xs font-bold text-neutral-950 shadow-md shadow-primary/20 hover:shadow-primary/40 active:scale-95 disabled:opacity-50 transition"
                     >
                       {isSubmitting ? (
                         <>
-                          <Loader2 className="size-4 animate-spin" />
+                          <Loader2 className="size-3.5 animate-spin" />
                           <span>Delivering...</span>
                         </>
                       ) : (
                         <>
-                          <Mail className="size-4" />
-                          <span>Transmit Message</span>
+                          <Mail className="size-3.5" />
+                          <span>Send Message</span>
                         </>
                       )}
                     </button>
-
-                    <a
-                      href="mailto:amanalam0353@gmail.com"
-                      className="text-xs text-neutral-400 hover:text-white transition px-3 py-2"
-                    >
-                      Or email directly: <span className="text-primary font-mono">amanalam0353@gmail.com</span>
-                    </a>
-                  </div>
-                </form>
-              )}
+                  </form>
+                )}
+              </div>
             </div>
           </div>
         </div>
       </section>
+
 
       <Footer />
       <DevTerminal isOpen={isTerminalOpen} onClose={() => setIsTerminalOpen(false)} />
