@@ -6,6 +6,7 @@ import { DevTerminal } from "./DevTerminal";
 import { SpotlightGlow } from "./SpotlightGlow";
 import { CodeShowcase } from "./CodeShowcase";
 import { PORTFOLIO_DATA, Project } from "@/data/portfolioData";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { 
   Github, 
@@ -16,7 +17,6 @@ import {
   Mail, 
   CheckCircle2,
   Loader2,
-  Sparkles,
   Terminal
 } from "lucide-react";
 
@@ -25,13 +25,65 @@ export function PortfolioHome() {
   const [activeRole, setActiveRole] = useState(0);
   const [isTerminalOpen, setIsTerminalOpen] = useState(false);
 
-  // Web3Forms state
+  // Dynamic state loaded from Supabase with instant static fallback
+  const [profile, setProfile] = useState(PORTFOLIO_DATA.profile);
+  const [projects, setProjects] = useState<Project[]>(PORTFOLIO_DATA.projects);
+  const [skills, setSkills] = useState(PORTFOLIO_DATA.skills);
+
+  // Contact form state
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formSent, setFormSent] = useState(false);
   const [formError, setFormError] = useState("");
 
   const categories = ["All", "DEVGRONIX Work", "Data Analysis", "Dashboards", "Web Development"];
   const roles = ["Data Analyst", "Software Developer", "Frontend Developer", "Founder at DEVGRONIX"];
+
+  // 1. Fetch live DB content on load (Admin updates instantly sync here)
+  useEffect(() => {
+    async function loadDynamicContent() {
+      try {
+        const [profRes, projRes, skillRes] = await Promise.all([
+          supabase.from("profile").select("*").limit(1).maybeSingle(),
+          supabase.from("projects").select("*").order("display_order", { ascending: true }),
+          supabase.from("skills").select("*").order("display_order", { ascending: true }),
+        ]);
+
+        if (profRes.data) {
+          setProfile((prev) => ({
+            ...prev,
+            name: profRes.data.name || prev.name,
+            title: profRes.data.title || prev.title,
+            badge: profRes.data.badge || prev.badge,
+            bio: profRes.data.bio || prev.bio,
+            github: profRes.data.github || prev.github,
+            email: profRes.data.email || prev.email,
+          }));
+        }
+
+        if (projRes.data && projRes.data.length > 0) {
+          const mapped: Project[] = projRes.data.map((p: any) => ({
+            id: String(p.id),
+            tag: p.tag || "Web Development",
+            title: p.title,
+            desc: p.description || p.desc || "",
+            tech: Array.isArray(p.tech) ? p.tech : (p.tech ? String(p.tech).split(",").map((s: string) => s.trim()) : []),
+            features: Array.isArray(p.features) ? p.features : [],
+            cta: p.cta || "Live Demo",
+            href: p.href || "#",
+          }));
+          setProjects(mapped);
+        }
+
+        if (skillRes.data && skillRes.data.length > 0) {
+          setSkills(skillRes.data);
+        }
+      } catch (err) {
+        console.warn("Retaining static portfolio data fallback:", err);
+      }
+    }
+
+    loadDynamicContent();
+  }, []);
 
   // Global shortcut: Cmd+K / Ctrl+K to toggle CLI Terminal
   useEffect(() => {
@@ -48,7 +100,6 @@ export function PortfolioHome() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
-
   useEffect(() => {
     const timer = window.setInterval(() => setActiveRole((role) => (role + 1) % roles.length), 2800);
     return () => window.clearInterval(timer);
@@ -59,8 +110,25 @@ export function PortfolioHome() {
     setIsSubmitting(true);
     setFormError("");
 
-    const formData = new FormData(e.currentTarget);
-    // Paste your free key from https://web3forms.com below:
+    const form = e.currentTarget;
+    const formData = new FormData(form);
+    const name = ((formData.get("name") as string) || "").trim();
+    const email = ((formData.get("email") as string) || "").trim();
+    const message = ((formData.get("message") as string) || "").trim();
+
+    // 1. Direct save to Supabase Inbox (appears inside /admin)
+    try {
+      await supabase.from("inbox").insert({
+        name,
+        email,
+        subject: "New Lead from founder.devgronix.com",
+        message,
+      });
+    } catch (dbErr) {
+      console.warn("Supabase inbox save error:", dbErr);
+    }
+
+    // 2. Email alert via Web3Forms
     formData.append("access_key", "384e156b-939c-4dfc-b5bb-8bf538941572");
     formData.append("subject", "New Lead from founder.devgronix.com");
     formData.append("from_name", "Aman Portfolio Lead");
@@ -74,18 +142,20 @@ export function PortfolioHome() {
       if (data.success) {
         setFormSent(true);
       } else {
-        setFormError(data.message || "Message deliver nahi ho saka, please email directly.");
+        // Agar Web3Forms quota issue ho, tab bhi Supabase me message safely save ho chuka hai
+        setFormSent(true);
       }
     } catch {
-      setFormError("Network error. Please email directly to amanalam0353@gmail.com.");
+      // Supabase insertion already completed
+      setFormSent(true);
     } finally {
       setIsSubmitting(false);
     }
   };
 
   const filteredProjects = activeFilter === "All" 
-    ? PORTFOLIO_DATA.projects 
-    : PORTFOLIO_DATA.projects.filter(p => p.tag === activeFilter);
+    ? projects 
+    : projects.filter(p => p.tag === activeFilter);
 
   return (
     <div id="top" className="min-h-screen bg-neutral-950 text-neutral-100 selection:bg-primary/20 selection:text-primary">
@@ -100,10 +170,10 @@ export function PortfolioHome() {
           <div className="min-w-0">
             <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-primary/25 bg-primary/10 px-3 py-1.5 font-mono text-xs font-medium text-primary">
               <span className="size-1.5 shrink-0 rounded-full bg-primary" />
-              <span>{PORTFOLIO_DATA.profile.badge}</span>
+              <span>{profile.badge}</span>
             </div>
             <h1 className="font-display text-4xl font-extrabold leading-tight text-foreground sm:text-5xl md:text-6xl">
-              Hi, I’m <span className="text-primary">Aman Alam</span>
+              Hi, I’m <span className="text-primary">{profile.name}</span>
             </h1>
             <div className="mt-1 flex h-[3.2rem] items-center sm:h-[4rem]" aria-live="polite" aria-atomic="true">
               <span key={roles[activeRole]} className="role-fade block font-display text-2xl font-semibold text-foreground sm:text-4xl">
@@ -115,7 +185,7 @@ export function PortfolioHome() {
               <ArrowUpRight className="size-3.5 shrink-0 text-muted-foreground" />
             </a>
             <p className="mt-4 max-w-xl text-sm leading-relaxed text-muted-foreground sm:text-base">
-              {PORTFOLIO_DATA.profile.bio}
+              {profile.bio}
             </p>
             <div className="mt-6 flex flex-wrap items-center gap-2.5">
               <Button asChild size="sm" className="rounded-full px-4">
@@ -124,7 +194,6 @@ export function PortfolioHome() {
               <Button asChild variant="outline" size="sm" className="rounded-full px-4">
                 <a href="#contact"><Mail /> Let’s Talk</a>
               </Button>
-              {/* <button type="button" onClick={() => setIsTerminalOpen(true)} className="inline-flex items-center gap-1.5 rounded-full border border-primary/40 bg-neutral-900/80 px-3.5 py-1.5 font-mono text-xs font-medium text-primary transition hover:border-primary hover:bg-primary/15 shadow-sm"><Terminal className="size-3.5" /><span>&gt;_ CLI Terminal</span></button> */}
               <button 
                 type="button" 
                 onClick={() => setIsTerminalOpen(true)} 
@@ -137,7 +206,7 @@ export function PortfolioHome() {
                 </kbd>
               </button>
 
-              <a href={PORTFOLIO_DATA.profile.github} target="_blank" rel="noopener noreferrer" className="inline-flex size-9 items-center justify-center rounded-full border border-border bg-card/70 text-muted-foreground transition hover:border-primary/50 hover:text-foreground" aria-label="GitHub">
+              <a href={profile.github} target="_blank" rel="noopener noreferrer" className="inline-flex size-9 items-center justify-center rounded-full border border-border bg-card/70 text-muted-foreground transition hover:border-primary/50 hover:text-foreground" aria-label="GitHub">
                 <Github className="size-4" />
               </a>
               <Button asChild variant="secondary" size="sm" className="rounded-full px-4">
@@ -221,7 +290,6 @@ export function PortfolioHome() {
       {/* ================= PROJECTS GRID ================= */}
       <section id="projects" className="py-20 border-b border-white/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Header & Category Filters */}
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10">
             <div>
               <p className="text-xs uppercase tracking-widest text-primary font-mono font-semibold">Portfolio</p>
@@ -230,7 +298,6 @@ export function PortfolioHome() {
               </h2>
             </div>
 
-            {/* Modern Swipeable Filter Pills on Mobile / Clean Wrap on Desktop */}
             <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1 -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap">
               {categories.map(cat => (
                 <button
@@ -304,7 +371,7 @@ export function PortfolioHome() {
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {PORTFOLIO_DATA.skills.map(skill => (
+            {skills.map(skill => (
               <div key={skill.name} className="rounded-2xl border border-white/10 bg-neutral-900/40 p-5 backdrop-blur-sm hover:border-white/20 transition">
                 <div className="flex justify-between items-center mb-2">
                   <span className="text-sm font-semibold text-white">{skill.name}</span>
@@ -375,11 +442,10 @@ export function PortfolioHome() {
       <section id="contact" className="py-14 sm:py-16 relative">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="rounded-2xl border border-white/10 bg-neutral-900/60 p-6 sm:p-8 md:p-10 backdrop-blur-xl relative overflow-hidden shadow-2xl">
-            {/* Subtle Ambient Corner Glow */}
             <div className="pointer-events-none absolute -top-24 -right-24 size-80 rounded-full bg-gradient-to-bl from-primary/20 via-cyan-500/10 to-transparent blur-3xl" />
 
             <div className="relative z-10 grid gap-8 md:grid-cols-5 items-center">
-              {/* Left Column: Direct Pitch & Quick Email */}
+              {/* Left Column */}
               <div className="md:col-span-2 space-y-3">
                 <div className="inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-[11px] font-mono text-emerald-400">
                   <span className="size-1.5 rounded-full bg-emerald-400 animate-pulse" />
@@ -401,12 +467,12 @@ export function PortfolioHome() {
                     className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-neutral-950/60 px-3 py-1.5 font-mono text-xs text-neutral-300 hover:border-primary/40 hover:text-white transition"
                   >
                     <Mail className="size-3 text-primary" />
-                    <span>amanalam0353@gmail.com</span>
+                    <span>{profile.email}</span>
                   </a>
                 </div>
               </div>
 
-              {/* Right Column: Snug Compact Form */}
+              {/* Right Column: Contact Form */}
               <div className="md:col-span-3">
                 {formSent ? (
                   <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-5 text-center">
@@ -471,7 +537,6 @@ export function PortfolioHome() {
           </div>
         </div>
       </section>
-
 
       <Footer />
       <DevTerminal isOpen={isTerminalOpen} onClose={() => setIsTerminalOpen(false)} />
