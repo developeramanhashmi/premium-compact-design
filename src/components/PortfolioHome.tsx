@@ -5,6 +5,7 @@ import { NetworkNodesCanvas } from "./NetworkNodesCanvas";
 import { DevTerminal } from "./DevTerminal";
 import { SpotlightGlow } from "./SpotlightGlow";
 import { CodeShowcase } from "./CodeShowcase";
+import { ProjectDetailModal } from "./ProjectDetailModal";
 import { PORTFOLIO_DATA, Project } from "@/data/portfolioData";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -24,6 +25,8 @@ export function PortfolioHome() {
   const [activeFilter, setActiveFilter] = useState<string>("All");
   const [activeRole, setActiveRole] = useState(0);
   const [isTerminalOpen, setIsTerminalOpen] = useState(false);
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+
 
   // Dynamic state loaded from Supabase with instant static fallback
   const [profile, setProfile] = useState(PORTFOLIO_DATA.profile);
@@ -354,7 +357,7 @@ export function PortfolioHome() {
                     </span>
                     <span className="text-xs font-mono text-neutral-500">#{project.id}</span>
                   </div>
-                  <h3 className="text-lg font-bold text-white mt-2 group-hover:text-primary transition-colors">
+                  <h3 onClick={() => setSelectedProject(project)} className="text-lg font-bold text-white mt-2 group-hover:text-primary transition-colors cursor-pointer">
                     {project.title}
                   </h3>
                   <p className="text-xs text-neutral-400 mt-2 leading-relaxed">
@@ -370,6 +373,14 @@ export function PortfolioHome() {
                 </div>
 
                 <div className="mt-6 pt-4 border-t border-white/5 flex items-center justify-between">
+                  <button
+                    type="button"
+                    onClick={() => setSelectedProject(project)}
+                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-neutral-400 hover:text-white transition"
+                  >
+                    <span>Quick View</span>
+                    <span className="text-[10px] font-mono text-primary/90 bg-primary/10 px-1.5 py-0.2 rounded border border-primary/25">Details</span>
+                  </button>
                   <a
                     href={project.href}
                     target="_blank"
