@@ -29,6 +29,8 @@ export function PortfolioHome() {
   const [profile, setProfile] = useState(PORTFOLIO_DATA.profile);
   const [projects, setProjects] = useState<Project[]>(PORTFOLIO_DATA.projects);
   const [skills, setSkills] = useState(PORTFOLIO_DATA.skills);
+  const [educationAndExperience, setEducationAndExperience] = useState(PORTFOLIO_DATA.educationAndExperience);
+  const [certificates, setCertificates] = useState(PORTFOLIO_DATA.certificates);
 
   // Contact form state
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -42,10 +44,12 @@ export function PortfolioHome() {
   useEffect(() => {
     async function loadDynamicContent() {
       try {
-        const [profRes, projRes, skillRes] = await Promise.all([
+        const [profRes, projRes, skillRes, eduRes, certRes] = await Promise.all([
           supabase.from("profile").select("*").limit(1).maybeSingle(),
           supabase.from("projects").select("*").order("display_order", { ascending: true }),
           supabase.from("skills").select("*").order("display_order", { ascending: true }),
+          supabase.from("education_experience").select("*").order("display_order", { ascending: true }),
+          supabase.from("certificates").select("*").order("display_order", { ascending: true }),
         ]);
 
         if (profRes.data) {
@@ -76,6 +80,28 @@ export function PortfolioHome() {
 
         if (skillRes.data && skillRes.data.length > 0) {
           setSkills(skillRes.data);
+        }
+
+        if (eduRes.data) {
+          setEducationAndExperience(eduRes.data.map((item: any) => ({
+            id: String(item.id),
+            type: item.type,
+            title: item.title,
+            organization: item.organization,
+            period: item.period,
+            desc: item.description || item.desc || "",
+            grade: item.grade || undefined,
+          })));
+        }
+
+        if (certRes.data) {
+          setCertificates(certRes.data.map((c: any) => ({
+            id: String(c.id),
+            tag: c.tag,
+            name: c.name,
+            desc: c.description || c.desc || "",
+            href: c.href,
+          })));
         }
       } catch (err) {
         console.warn("Retaining static portfolio data fallback:", err);
@@ -249,7 +275,7 @@ export function PortfolioHome() {
                 <GraduationCap className="size-4 text-primary" />
                 <span>Formal Education</span>
               </h3>
-              {PORTFOLIO_DATA.educationAndExperience
+              {educationAndExperience
                 .filter(item => item.type === "education")
                 .map(item => (
                   <div key={item.id} className="rounded-2xl border border-white/10 bg-neutral-900/40 p-6 backdrop-blur-sm hover:border-white/20 transition">
@@ -272,7 +298,7 @@ export function PortfolioHome() {
                 <Briefcase className="size-4 text-cyan-400" />
                 <span>Industry Experience</span>
               </h3>
-              {PORTFOLIO_DATA.educationAndExperience
+              {educationAndExperience
                 .filter(item => item.type === "experience")
                 .map(item => (
                   <div key={item.id} className="rounded-2xl border border-white/10 bg-neutral-900/40 p-6 backdrop-blur-sm hover:border-white/20 transition">
@@ -409,7 +435,7 @@ export function PortfolioHome() {
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {PORTFOLIO_DATA.certificates.map(cert => (
+            {certificates.map(cert => (
               <a
                 key={cert.id}
                 href={cert.href}
