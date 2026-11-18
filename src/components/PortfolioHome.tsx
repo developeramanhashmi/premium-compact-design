@@ -214,7 +214,7 @@ export function PortfolioHome() {
               </Button>
             </div>
             <div className="mt-6 flex flex-wrap gap-x-5 gap-y-2 border-t border-border/70 pt-4 font-mono text-[11px] text-muted-foreground">
-              <span>IIT Madras · BS Scholar</span>
+              <span>IIT Madras · BS Data Science</span>
               <span>MANUU · CS Diploma</span>
               <span>Python · SQL · Power BI</span>
             </div>
