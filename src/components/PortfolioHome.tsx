@@ -375,8 +375,12 @@ export function PortfolioHome() {
                 <div className="mt-6 pt-4 border-t border-white/5 flex items-center justify-between">
                   <button
                     type="button"
-                    onClick={() => setSelectedProject(project)}
-                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-neutral-400 hover:text-white transition"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setSelectedProject(project);
+                    }}
+                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-neutral-400 hover:text-white transition cursor-pointer active:scale-95"
                   >
                     <span>Quick View</span>
                     <span className="text-[10px] font-mono text-primary/90 bg-primary/10 px-1.5 py-0.2 rounded border border-primary/25">Details</span>
@@ -577,6 +581,7 @@ export function PortfolioHome() {
 
       <Footer />
       <DevTerminal isOpen={isTerminalOpen} onClose={() => setIsTerminalOpen(false)} />
+      <ProjectDetailModal project={selectedProject} onClose={() => setSelectedProject(null)} />
     </div>
   );
 }
