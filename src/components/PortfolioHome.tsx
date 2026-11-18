@@ -6,6 +6,7 @@ import { DevTerminal } from "./DevTerminal";
 import { SpotlightGlow } from "./SpotlightGlow";
 import { CodeShowcase } from "./CodeShowcase";
 import { ProjectDetailModal } from "./ProjectDetailModal";
+import { TechHeartbeatHUD } from "./TechHeartbeatHUD";
 import { PORTFOLIO_DATA, Project } from "@/data/portfolioData";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -258,6 +259,10 @@ export function PortfolioHome() {
               </div>
             </div>
           </div>
+        </div>
+        {/* Live Tech Heartbeat & Status HUD */}
+        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 mt-10">
+          <TechHeartbeatHUD availabilityStatus={profile.badge} />
         </div>
       </section>
 
