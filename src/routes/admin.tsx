@@ -21,6 +21,7 @@ import {
   X,
   GraduationCap,
   Briefcase,
+  Award,
   CheckCheck,
   Send,
   MessageCircle,
@@ -73,6 +74,16 @@ interface SkillData {
   display_order: number;
 }
 
+
+interface CertificateData {
+  id: string;
+  tag: string;
+  name: string;
+  description?: string;
+  href: string;
+  display_order: number;
+}
+
 interface EducationExperienceData {
   id: string;
   type: "education" | "experience";
@@ -113,7 +124,7 @@ function AdminPage() {
 
   // Dashboard Data State
   const [activeTab, setActiveTab] = useState<
-    "overview" | "profile" | "projects" | "skills" | "eduexp" | "inbox"
+    "overview" | "profile" | "projects" | "skills" | "eduexp" | "certificates" | "inbox"
   >("overview");
   const [feedback, setFeedback] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
@@ -121,6 +132,14 @@ function AdminPage() {
   const [projects, setProjects] = useState<ProjectData[]>([]);
   const [skills, setSkills] = useState<SkillData[]>([]);
   const [eduExp, setEduExp] = useState<EducationExperienceData[]>([]);
+  const [certificates, setCertificates] = useState<CertificateData[]>([]);
+  const [editingCertificate, setEditingCertificate] = useState<CertificateData | null>(null);
+  const [newCertificate, setNewCertificate] = useState({
+    tag: "Certification",
+    name: "",
+    description: "",
+    href: "",
+  });
   const [inbox, setInbox] = useState<InboxMessage[]>([]);
   const [loadingData, setLoadingData] = useState(false);
 
@@ -212,13 +231,21 @@ function AdminPage() {
   const loadAllData = async () => {
     setLoadingData(true);
     try {
-      const [profRes, projRes, skillRes, eduRes, inboxRes] = await Promise.all([
+      const [profRes, projRes, skillRes, eduRes, certRes, inboxRes] = await Promise.all([
         supabase.from("profile").select("*").limit(1).maybeSingle(),
         supabase.from("projects").select("*").order("display_order", { ascending: true }),
         supabase.from("skills").select("*").order("display_order", { ascending: true }),
         supabase.from("education_experience").select("*").order("display_order", { ascending: true }),
+        supabase.from("certificates").select("*").order("display_order", { ascending: true }),
         supabase.from("inbox").select("*").order("created_at", { ascending: false }),
       ]);
+
+      if (profRes.data) setProfile(profRes.data as ProfileData);
+      if (projRes.data) setProjects(projRes.data as ProjectData[]);
+      if (skillRes.data) setSkills(skillRes.data as SkillData[]);
+      if (eduRes.data) setEduExp(eduRes.data as EducationExperienceData[]);
+      if (certRes.data) setCertificates(certRes.data as CertificateData[]);
+      if (inboxRes.data) setInbox(inboxRes.data as InboxMessage[]);
 
       if (profRes.data) setProfile(profRes.data as ProfileData);
       if (projRes.data) setProjects(projRes.data as ProjectData[]);
@@ -470,6 +497,68 @@ function AdminPage() {
     }
   };
 
+  
+  // Certificate Actions
+  const handleAddCertificate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newCertificate.name.trim() || !newCertificate.href.trim()) {
+      showFeedback("error", "Certificate Title and URL are required.");
+      return;
+    }
+    const payload: CertificateData = {
+      id: "cert-" + Date.now().toString().slice(-5),
+      tag: newCertificate.tag.trim(),
+      name: newCertificate.name.trim(),
+      description: newCertificate.description.trim() || undefined,
+      href: newCertificate.href.trim(),
+      display_order: certificates.length + 1,
+    };
+
+    const { error } = await supabase.from("certificates").insert(payload);
+    if (error) {
+      showFeedback("error", "Failed to add certificate: " + error.message);
+    } else {
+      setCertificates([...certificates, payload]);
+      setNewCertificate({ tag: "Certification", name: "", description: "", href: "" });
+      showFeedback("success", "Certificate added to live showcase!");
+    }
+  };
+
+  const handleUpdateCertificate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingCertificate) return;
+
+    const { error } = await supabase
+      .from("certificates")
+      .update({
+        tag: editingCertificate.tag.trim(),
+        name: editingCertificate.name.trim(),
+        description: editingCertificate.description?.trim() || null,
+        href: editingCertificate.href.trim(),
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", editingCertificate.id);
+
+    if (error) {
+      showFeedback("error", "Failed to update certificate: " + error.message);
+    } else {
+      setCertificates(certificates.map((c) => (c.id === editingCertificate.id ? editingCertificate : c)));
+      setEditingCertificate(null);
+      showFeedback("success", "Certificate updated!");
+    }
+  };
+
+  const handleDeleteCertificate = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this certificate?")) return;
+    const { error } = await supabase.from("certificates").delete().eq("id", id);
+    if (error) {
+      showFeedback("error", "Failed to delete: " + error.message);
+    } else {
+      setCertificates(certificates.filter((c) => c.id !== id));
+      showFeedback("success", "Certificate removed.");
+    }
+  };
+
   // 5. Inbox Actions
   const handleToggleMessageRead = async (msg: InboxMessage) => {
     const { error } = await supabase
@@ -676,6 +765,7 @@ function AdminPage() {
             { id: "projects", label: "Projects", icon: FolderKanban, badge: projects.length },
             { id: "skills", label: "Skills", icon: Wrench, badge: skills.length },
             { id: "eduexp", label: "Education & Exp", icon: GraduationCap, badge: eduExp.length },
+            { id: "certificates", label: "Certificates", icon: Award, badge: certificates.length },
             {
               id: "inbox",
               label: "Inbox",
@@ -1419,6 +1509,204 @@ function AdminPage() {
                   ))
                 )}
               </div>
+            </div>
+          )}
+
+          
+          {/* TAB: CERTIFICATES */}
+          {activeTab === "certificates" && (
+            <div className="space-y-6">
+              {/* Add Certificate Form */}
+              <form onSubmit={handleAddCertificate} className="p-4 rounded-xl border border-white/10 bg-neutral-900/40 space-y-3">
+                <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                  <Plus className="size-4 text-emerald-400" /> Add Verified Certificate or Credential
+                </h3>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-[11px] font-mono text-neutral-400 mb-1">Title / Issuer *</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. Prodigy InfoTech or IIT Madras"
+                      value={newCertificate.name}
+                      onChange={(e) => setNewCertificate({ ...newCertificate, name: e.target.value })}
+                      className="w-full px-3 py-1.5 rounded-lg border border-white/10 bg-neutral-950 text-xs text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-mono text-neutral-400 mb-1">Tag / Track *</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. Internship · Data Science or SQL Certification"
+                      value={newCertificate.tag}
+                      onChange={(e) => setNewCertificate({ ...newCertificate, tag: e.target.value })}
+                      className="w-full px-3 py-1.5 rounded-lg border border-white/10 bg-neutral-950 text-xs text-white"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-mono text-neutral-400 mb-1">Verification / Drive Link *</label>
+                  <input
+                    type="url"
+                    required
+                    placeholder="https://drive.google.com/..."
+                    value={newCertificate.href}
+                    onChange={(e) => setNewCertificate({ ...newCertificate, href: e.target.value })}
+                    className="w-full px-3 py-1.5 rounded-lg border border-white/10 bg-neutral-950 text-xs text-white"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-mono text-neutral-400 mb-1">Description / Core Skills Covered</label>
+                  <textarea
+                    rows={2}
+                    placeholder="Brief description of coursework or tasks completed..."
+                    value={newCertificate.description}
+                    onChange={(e) => setNewCertificate({ ...newCertificate, description: e.target.value })}
+                    className="w-full px-3 py-1.5 rounded-lg border border-white/10 bg-neutral-950 text-xs text-white"
+                  />
+                </div>
+
+                <div className="text-right">
+                  <button
+                    type="submit"
+                    className="px-4 py-2 rounded-lg bg-emerald-500 text-neutral-950 font-semibold text-xs hover:bg-emerald-400 transition-colors"
+                  >
+                    + Add Certificate to Showcase
+                  </button>
+                </div>
+              </form>
+
+              {/* Certificates List */}
+              <div className="space-y-2">
+                <h3 className="text-sm font-bold text-white">Live Certificates ({certificates.length})</h3>
+                {certificates.length === 0 ? (
+                  <p className="text-xs font-mono text-neutral-500">No certificates saved in database yet.</p>
+                ) : (
+                  certificates.map((cert) => (
+                    <div
+                      key={cert.id}
+                      className="p-3.5 rounded-xl border border-white/10 bg-neutral-900/30 flex items-center justify-between gap-3 hover:border-white/20 transition-all"
+                    >
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2">
+                          <span className="font-semibold text-xs text-white">{cert.name}</span>
+                          <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-white/5 text-emerald-400 border border-white/5">
+                            {cert.tag}
+                          </span>
+                        </div>
+                        {cert.description && (
+                          <p className="text-[11px] text-neutral-400 mt-1 line-clamp-1">{cert.description}</p>
+                        )}
+                      </div>
+
+                      <div className="flex items-center gap-2 shrink-0">
+                        <button
+                          onClick={() => setEditingCertificate({ ...cert })}
+                          title="Edit Certificate"
+                          className="p-2 rounded-lg bg-white/5 hover:bg-white/15 text-neutral-300 hover:text-white transition-colors"
+                        >
+                          <Pencil className="size-3.5" />
+                        </button>
+                        <a
+                          href={cert.href}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="p-2 rounded-lg hover:bg-white/10 text-neutral-400 hover:text-white"
+                        >
+                          <ExternalLink className="size-3.5" />
+                        </a>
+                        <button
+                          onClick={() => handleDeleteCertificate(cert.id)}
+                          className="p-2 rounded-lg hover:bg-red-500/20 text-neutral-400 hover:text-red-400 transition-colors"
+                        >
+                          <Trash2 className="size-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+
+              {/* Edit Certificate Modal */}
+              {editingCertificate && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+                  <div className="w-full max-w-lg rounded-2xl border border-white/15 bg-neutral-900 p-6 space-y-4 shadow-2xl relative">
+                    <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                      <h4 className="text-sm font-bold text-white flex items-center gap-2">
+                        <Pencil className="size-4 text-emerald-400" /> Edit Certificate
+                      </h4>
+                      <button
+                        onClick={() => setEditingCertificate(null)}
+                        className="p-1 rounded-lg hover:bg-white/10 text-neutral-400 hover:text-white"
+                      >
+                        <X className="size-4" />
+                      </button>
+                    </div>
+
+                    <form onSubmit={handleUpdateCertificate} className="space-y-3">
+                      <div>
+                        <label className="block text-[11px] font-mono text-neutral-400 mb-1">Title / Name</label>
+                        <input
+                          type="text"
+                          required
+                          value={editingCertificate.name}
+                          onChange={(e) => setEditingCertificate({ ...editingCertificate, name: e.target.value })}
+                          className="w-full px-3 py-1.5 rounded-lg border border-white/10 bg-neutral-950 text-xs text-white"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[11px] font-mono text-neutral-400 mb-1">Tag / Track</label>
+                        <input
+                          type="text"
+                          required
+                          value={editingCertificate.tag}
+                          onChange={(e) => setEditingCertificate({ ...editingCertificate, tag: e.target.value })}
+                          className="w-full px-3 py-1.5 rounded-lg border border-white/10 bg-neutral-950 text-xs text-white"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[11px] font-mono text-neutral-400 mb-1">Link URL</label>
+                        <input
+                          type="url"
+                          required
+                          value={editingCertificate.href}
+                          onChange={(e) => setEditingCertificate({ ...editingCertificate, href: e.target.value })}
+                          className="w-full px-3 py-1.5 rounded-lg border border-white/10 bg-neutral-950 text-xs text-white"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[11px] font-mono text-neutral-400 mb-1">Description</label>
+                        <textarea
+                          rows={2}
+                          value={editingCertificate.description || ""}
+                          onChange={(e) => setEditingCertificate({ ...editingCertificate, description: e.target.value })}
+                          className="w-full px-3 py-1.5 rounded-lg border border-white/10 bg-neutral-950 text-xs text-white"
+                        />
+                      </div>
+
+                      <div className="flex justify-end gap-2 pt-2 border-t border-white/10">
+                        <button
+                          type="button"
+                          onClick={() => setEditingCertificate(null)}
+                          className="px-3 py-1.5 rounded-lg border border-white/10 text-xs text-neutral-400 hover:text-white"
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          type="submit"
+                          className="px-4 py-1.5 rounded-lg bg-emerald-500 text-neutral-950 font-bold text-xs hover:bg-emerald-400"
+                        >
+                          Save Certificate
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
