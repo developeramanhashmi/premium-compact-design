@@ -1,0 +1,30 @@
+{
+  "name": "Aman Alam — Founder of DEVGRONIX",
+  "short_name": "Aman Alam",
+  "description": "Founder & Lead Full-Stack Architect at DEVGRONIX. Data Analyst from IIT Madras & MANUU.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#0a0c10",
+  "theme_color": "#0a0c10",
+  "orientation": "portrait-primary",
+  "categories": ["portfolio", "business", "developer"],
+  "icons": [
+    {
+      "src": "/onlyfavicon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/onlyfavicon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/onlyfavicon.png",
+      "sizes": "1254x1254",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
