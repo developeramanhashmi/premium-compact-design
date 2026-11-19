@@ -1,8 +1,19 @@
+# robots.txt for https://founder.devgronix.com
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /admin/
+Disallow: /api/
+
 User-agent: Googlebot
 Allow: /
+Disallow: /admin
+Disallow: /admin/
 
 User-agent: Bingbot
 Allow: /
+Disallow: /admin
+Disallow: /admin/
 
 User-agent: Twitterbot
 Allow: /
@@ -10,5 +21,4 @@ Allow: /
 User-agent: facebookexternalhit
 Allow: /
 
-User-agent: *
-Allow: /
+Sitemap: https://founder.devgronix.com/sitemap.xml
