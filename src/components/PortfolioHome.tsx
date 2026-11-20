@@ -1,3 +1,5 @@
+import { EducationExperienceTimeline } from "./EducationExperienceTimeline";
+import { VisitorCounterBadge } from "./VisitorCounterBadge";
 import React, { useEffect, useState } from "react";
 import { Header } from "./Header";
 import { Footer } from "./Footer";
@@ -293,57 +295,29 @@ export function PortfolioHome() {
       </section>
 
       {/* ================= ABOUT & EDUCATION / EXPERIENCE ================= */}
-      <section id="about" className="py-20 border-b border-white/5">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="mb-12">
-            <p className="text-xs uppercase tracking-widest text-primary font-mono font-semibold">Background</p>
-            <h2 className="text-2xl sm:text-4xl font-display font-bold tracking-tight mt-1 text-white">
-              Education &amp; Journey
-            </h2>
-          </div>
+      <section id="about" className="py-20 border-b border-white/5 relative overflow-hidden">
+        {/* Subtle background ambient glow */}
+        <div className="pointer-events-none absolute -left-20 top-1/4 h-72 w-72 rounded-full bg-primary/5 blur-3xl" />
+        <div className="pointer-events-none absolute -right-20 bottom-1/4 h-72 w-72 rounded-full bg-violet-500/5 blur-3xl" />
 
-          <div className="grid gap-6 md:grid-cols-2">
-            {/* Education */}
-            <div className="space-y-4">
-              <h3 className="text-xs font-mono uppercase tracking-wider text-neutral-400 flex items-center gap-2">
-                <GraduationCap className="size-4 text-primary" />
-                <span>Formal Education</span>
-              </h3>
-              {educationAndExperience
-                .filter(item => item.type === "education")
-                .map(item => (
-                  <div key={item.id} className="rounded-2xl border border-white/10 bg-neutral-900/40 p-6 backdrop-blur-sm hover:border-white/20 transition">
-                    <span className="text-xs font-mono text-primary font-semibold">{item.period}</span>
-                    <h4 className="text-base font-bold text-white mt-1">{item.title}</h4>
-                    <p className="text-sm text-neutral-400 mt-0.5">{item.organization}</p>
-                    <p className="text-xs text-neutral-400 mt-2 leading-relaxed">{item.desc}</p>
-                    {item.grade && (
-                      <span className="inline-block mt-3 text-xs font-mono px-2 py-0.5 rounded-md bg-white/5 border border-white/10 text-neutral-300">
-                        {item.grade}
-                      </span>
-                    )}
-                  </div>
-                ))}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-12">
+            <div>
+              <p className="text-xs uppercase tracking-widest text-primary font-mono font-semibold">
+                Academic &amp; Industry Track
+              </p>
+              <h2 className="text-2xl sm:text-4xl font-display font-bold tracking-tight mt-1 text-white">
+                Education &amp; Professional Journey
+              </h2>
+              <p className="text-xs sm:text-sm text-neutral-400 mt-2 max-w-xl">
+                Rigorous mathematical and computational foundations at IIT Madras paired with practical engineering, systems architecture, and product design.
+              </p>
             </div>
 
-            {/* Experience */}
-            <div className="space-y-4">
-              <h3 className="text-xs font-mono uppercase tracking-wider text-neutral-400 flex items-center gap-2">
-                <Briefcase className="size-4 text-cyan-400" />
-                <span>Industry Experience</span>
-              </h3>
-              {educationAndExperience
-                .filter(item => item.type === "experience")
-                .map(item => (
-                  <div key={item.id} className="rounded-2xl border border-white/10 bg-neutral-900/40 p-6 backdrop-blur-sm hover:border-white/20 transition">
-                    <span className="text-xs font-mono text-cyan-400 font-semibold">{item.period}</span>
-                    <h4 className="text-base font-bold text-white mt-1">{item.title}</h4>
-                    <p className="text-sm text-neutral-400 mt-0.5">{item.organization}</p>
-                    <p className="text-xs text-neutral-400 mt-2 leading-relaxed">{item.desc}</p>
-                  </div>
-                ))}
-            </div>
+            <VisitorCounterBadge className="shrink-0" />
           </div>
+
+          <EducationExperienceTimeline items={educationAndExperience} />
         </div>
       </section>
 
