@@ -7,7 +7,9 @@ import { SpotlightGlow } from "./SpotlightGlow";
 import { CodeShowcase } from "./CodeShowcase";
 import { ProjectDetailModal } from "./ProjectDetailModal";
 import { TechHeartbeatHUD } from "./TechHeartbeatHUD";
-import { PORTFOLIO_DATA, Project } from "@/data/portfolioData";
+import { PORTFOLIO_DATA, Project, Testimonial } from "@/data/portfolioData";
+import { FloatingWhatsApp } from "./FloatingWhatsApp";
+import { Star, Quote, MessageSquareQuote, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { 
@@ -35,6 +37,7 @@ export function PortfolioHome() {
   const [skills, setSkills] = useState(PORTFOLIO_DATA.skills);
   const [educationAndExperience, setEducationAndExperience] = useState(PORTFOLIO_DATA.educationAndExperience);
   const [certificates, setCertificates] = useState(PORTFOLIO_DATA.certificates);
+  const [testimonials, setTestimonials] = useState<Testimonial[]>(PORTFOLIO_DATA.testimonials || []);
 
   // Contact form state
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -48,12 +51,13 @@ export function PortfolioHome() {
   useEffect(() => {
     async function loadDynamicContent() {
       try {
-        const [profRes, projRes, skillRes, eduRes, certRes] = await Promise.all([
+        const [profRes, projRes, skillRes, eduRes, certRes, testiRes] = await Promise.all([
           supabase.from("profile").select("*").limit(1).maybeSingle(),
           supabase.from("projects").select("*").order("display_order", { ascending: true }),
           supabase.from("skills").select("*").order("display_order", { ascending: true }),
           supabase.from("education_experience").select("*").order("display_order", { ascending: true }),
           supabase.from("certificates").select("*").order("display_order", { ascending: true }),
+          supabase.from("testimonials").select("*").order("display_order", { ascending: true }),
         ]);
 
         if (profRes.data) {
@@ -105,6 +109,28 @@ export function PortfolioHome() {
             name: c.name,
             desc: c.description || c.desc || "",
             href: c.href,
+          })));
+        }
+
+        if (profRes.data && (profRes.data as any).whatsapp) {
+          setProfile((prev: any) => ({
+            ...prev,
+            whatsapp: (profRes.data as any).whatsapp,
+          }));
+        }
+
+        if (testiRes.data && testiRes.data.length > 0) {
+          setTestimonials(testiRes.data.map((t: any) => ({
+            id: String(t.id),
+            name: t.name,
+            role: t.role,
+            company: t.company,
+            content: t.content,
+            rating: Number(t.rating) || 5,
+            avatar_url: t.avatar_url || undefined,
+            project_tag: t.project_tag || undefined,
+            display_order: t.display_order,
+            is_featured: t.is_featured ?? true,
           })));
         }
       } catch (err) {
