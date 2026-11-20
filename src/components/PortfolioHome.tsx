@@ -510,7 +510,80 @@ export function PortfolioHome() {
         </div>
       </section>
 
-      {/* ================= CONTACT SECTION (COMPACT & PREMIUM) ================= */}
+      
+      {/* ================= CLIENT TESTIMONIALS ================= */}
+      {testimonials && testimonials.length > 0 && (
+        <section id="testimonials" className="py-20 border-b border-white/5 relative overflow-hidden">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-10 gap-4">
+              <div>
+                <p className="text-xs uppercase tracking-widest text-primary font-mono font-semibold">Social Proof</p>
+                <h2 className="text-2xl sm:text-4xl font-display font-bold tracking-tight mt-1 text-white">
+                  Client & Partner Endorsements
+                </h2>
+              </div>
+              <p className="text-xs font-mono text-neutral-400">
+                Verified Feedback & Delivery Reviews
+              </p>
+            </div>
+
+            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              {testimonials.map((t) => (
+                <div
+                  key={t.id}
+                  className="rounded-2xl border border-white/10 bg-neutral-900/50 p-6 backdrop-blur-sm flex flex-col justify-between hover:border-primary/40 hover:bg-neutral-900/80 transition group"
+                >
+                  <div>
+                    {/* Stars & Tag */}
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-1 text-amber-400">
+                        {Array.from({ length: t.rating || 5 }).map((_, i) => (
+                          <Star key={i} className="size-3.5 fill-amber-400" />
+                        ))}
+                      </div>
+                      {t.project_tag && (
+                        <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-0.5 text-[10px] font-mono text-neutral-300">
+                          {t.project_tag}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Content */}
+                    <p className="text-xs sm:text-sm text-neutral-300 leading-relaxed italic mb-6">
+                      "{t.content}"
+                    </p>
+                  </div>
+
+                  {/* Author Meta */}
+                  <div className="flex items-center gap-3 pt-4 border-t border-white/5">
+                    {t.avatar_url ? (
+                      <img
+                        src={t.avatar_url}
+                        alt={t.name}
+                        className="size-10 rounded-full object-cover border border-white/10"
+                      />
+                    ) : (
+                      <div className="size-10 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-xs font-bold text-primary font-mono">
+                        {t.name.slice(0, 2).toUpperCase()}
+                      </div>
+                    )}
+                    <div>
+                      <h4 className="text-xs font-bold text-white group-hover:text-primary transition">
+                        {t.name}
+                      </h4>
+                      <p className="text-[11px] text-neutral-400">
+                        {t.role} {t.company && `• ${t.company}`}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+{/* ================= CONTACT SECTION (COMPACT & PREMIUM) ================= */}
       <section id="contact" className="py-14 sm:py-16 relative">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="rounded-2xl border border-white/10 bg-neutral-900/60 p-6 sm:p-8 md:p-10 backdrop-blur-xl relative overflow-hidden shadow-2xl">
@@ -613,6 +686,7 @@ export function PortfolioHome() {
       <Footer />
       <DevTerminal isOpen={isTerminalOpen} onClose={() => setIsTerminalOpen(false)} />
       <ProjectDetailModal project={selectedProject} onClose={() => setSelectedProject(null)} />
+      <FloatingWhatsApp phoneNumber={profile.whatsapp} />
     </div>
   );
 }
