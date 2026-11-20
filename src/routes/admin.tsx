@@ -37,6 +37,7 @@ import {
   Quote,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({
@@ -129,6 +130,16 @@ interface InboxMessage {
   created_at: string;
 }
 
+interface VisitorAnalyticsEntry {
+  id?: string | number;
+  page_path?: string | null;
+  referrer?: string | null;
+  device_type?: string | null;
+  browser?: string | null;
+  screen_resolution?: string | null;
+  created_at?: string | null;
+}
+
 const AVAILABILITY_PRESETS = [
   "Available for Roles & Projects",
   "Open for Freelance & Contract",
@@ -158,8 +169,9 @@ function AdminPage() {
   const [eduExp, setEduExp] = useState<EducationExperienceData[]>([]);
   const [certificates, setCertificates] = useState<CertificateData[]>([]);
   const [testimonials, setTestimonials] = useState<TestimonialData[]>([]);
-  const [analyticsLogs, setAnalyticsLogs] = useState<any[]>([]);
+  const [analyticsLogs, setAnalyticsLogs] = useState<VisitorAnalyticsEntry[]>([]);
   const [analyticsLoading, setAnalyticsLoading] = useState(false);
+  const [analyticsError, setAnalyticsError] = useState("");
   const [editingTestimonial, setEditingTestimonial] = useState<TestimonialData | null>(null);
   const [newTestimonial, setNewTestimonial] = useState({
     name: "",
@@ -299,6 +311,29 @@ function AdminPage() {
       showFeedback("error", "Error loading data: " + err.message);
     } finally {
       setLoadingData(false);
+    }
+  };
+
+  const refreshAnalytics = async () => {
+    setAnalyticsLoading(true);
+    setAnalyticsError("");
+    try {
+      const { data, error } = await supabase
+        .from("site_analytics")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(100);
+
+      if (error) {
+        setAnalyticsError("Visitor data could not be loaded. Please try again.");
+        return;
+      }
+
+      setAnalyticsLogs((data ?? []) as VisitorAnalyticsEntry[]);
+    } catch {
+      setAnalyticsError("Visitor data could not be loaded. Please try again.");
+    } finally {
+      setAnalyticsLoading(false);
     }
   };
 
@@ -906,7 +941,10 @@ function AdminPage() {
             return (
               <button
                 key={tab.id}
-                onClick={() => setActiveTab(tab.id as any)}
+                onClick={() => {
+                  setActiveTab(tab.id as any);
+                  if (tab.id === "analytics") void refreshAnalytics();
+                }}
                 className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-lg text-xs font-medium transition-all ${
                   active
                     ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
@@ -2105,7 +2143,90 @@ function AdminPage() {
             </div>
           )}
 
-          {/* TAB 6: INBOX */}
+          {/* TAB 6: VISITOR ANALYTICS */}
+          {activeTab === "analytics" && (
+            <section className="space-y-4" aria-labelledby="visitor-analytics-title">
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <h3 id="visitor-analytics-title" className="text-sm font-bold text-white">Visitor Analytics</h3>
+                  <p className="mt-1 text-xs text-neutral-400">Recent activity · latest 100 visits</p>
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => void refreshAnalytics()}
+                  disabled={analyticsLoading}
+                  className="border-white/10 bg-white/5 text-neutral-300 hover:bg-white/10 hover:text-white"
+                >
+                  <RefreshCw className={`size-3.5 ${analyticsLoading ? "animate-spin" : ""}`} />
+                  Refresh
+                </Button>
+              </div>
+
+              {analyticsError ? (
+                <div role="alert" className="rounded-lg border border-red-500/20 bg-red-500/5 px-4 py-3 text-xs text-red-300">
+                  {analyticsError}
+                </div>
+              ) : (
+                <>
+                  <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                    {[
+                      { label: "Visits listed", value: analyticsLogs.length, icon: Eye },
+                      { label: "Mobile", value: analyticsLogs.filter((entry) => entry.device_type?.toLowerCase() === "mobile").length, icon: Smartphone },
+                      { label: "Desktop", value: analyticsLogs.filter((entry) => entry.device_type?.toLowerCase() === "desktop").length, icon: Monitor },
+                      { label: "Pages viewed", value: new Set(analyticsLogs.map((entry) => entry.page_path).filter(Boolean)).size, icon: Globe },
+                    ].map(({ label, value, icon: Icon }) => (
+                      <div key={label} className="rounded-lg border border-white/10 bg-neutral-900/40 p-3.5">
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-[11px] font-mono text-neutral-400">{label}</span>
+                          <Icon className="size-3.5 text-emerald-400" />
+                        </div>
+                        <p className="mt-2 text-xl font-bold font-mono text-white">{value}</p>
+                      </div>
+                    ))}
+                  </div>
+
+                  {analyticsLoading ? (
+                    <div role="status" className="rounded-lg border border-white/10 bg-neutral-900/30 px-4 py-8 text-center text-xs text-neutral-400">
+                      Loading visitor activity…
+                    </div>
+                  ) : analyticsLogs.length === 0 ? (
+                    <div className="rounded-lg border border-white/10 bg-neutral-900/30 px-4 py-8 text-center">
+                      <Activity className="mx-auto size-5 text-neutral-500" />
+                      <p className="mt-2 text-xs text-neutral-300">No visitor activity has been recorded yet.</p>
+                    </div>
+                  ) : (
+                    <div className="overflow-hidden rounded-lg border border-white/10">
+                      <div className="flex items-center justify-between border-b border-white/10 bg-neutral-900/50 px-4 py-3">
+                        <h4 className="text-xs font-semibold text-white">Recent visits</h4>
+                        <span className="text-[10px] font-mono text-neutral-500">{analyticsLogs.length} shown</span>
+                      </div>
+                      <div className="divide-y divide-white/5">
+                        {analyticsLogs.map((entry, index) => (
+                          <div key={entry.id ?? `${entry.created_at ?? "visit"}-${index}`} className="grid gap-2 px-4 py-3 sm:grid-cols-[1fr_auto] sm:items-center">
+                            <div className="min-w-0">
+                              <p className="truncate text-xs font-medium text-white">{entry.page_path || "Unknown page"}</p>
+                              <p className="mt-1 truncate text-[10px] text-neutral-400">From {entry.referrer || "Direct"} · {entry.browser || "Unknown browser"}</p>
+                            </div>
+                            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px] font-mono text-neutral-400 sm:justify-end">
+                              <span>{entry.device_type || "Unknown device"}</span>
+                              {entry.screen_resolution && <span>{entry.screen_resolution}</span>}
+                              <time dateTime={entry.created_at || undefined}>
+                                {entry.created_at ? new Date(entry.created_at).toLocaleString() : "Time unavailable"}
+                              </time>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </>
+              )}
+            </section>
+          )}
+
+          {/* TAB 7: INBOX */}
           {activeTab === "inbox" && (
             <div className="space-y-4">
               <div className="flex items-center justify-between pb-1">
