@@ -141,7 +141,7 @@ function AdminPage() {
 
   // Dashboard Data State
   const [activeTab, setActiveTab] = useState<
-    "overview" | "profile" | "projects" | "skills" | "eduexp" | "certificates" | "inbox"
+    "overview" | "profile" | "projects" | "skills" | "eduexp" | "certificates" | "testimonials" | "inbox"
   >("overview");
   const [feedback, setFeedback] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
@@ -261,12 +261,13 @@ function AdminPage() {
   const loadAllData = async () => {
     setLoadingData(true);
     try {
-      const [profRes, projRes, skillRes, eduRes, certRes, inboxRes] = await Promise.all([
+      const [profRes, projRes, skillRes, eduRes, certRes, testiRes, inboxRes] = await Promise.all([
         supabase.from("profile").select("*").limit(1).maybeSingle(),
         supabase.from("projects").select("*").order("display_order", { ascending: true }),
         supabase.from("skills").select("*").order("display_order", { ascending: true }),
         supabase.from("education_experience").select("*").order("display_order", { ascending: true }),
         supabase.from("certificates").select("*").order("display_order", { ascending: true }),
+        supabase.from("testimonials").select("*").order("display_order", { ascending: true }),
         supabase.from("inbox").select("*").order("created_at", { ascending: false }),
       ]);
 
@@ -275,6 +276,7 @@ function AdminPage() {
       if (skillRes.data) setSkills(skillRes.data as SkillData[]);
       if (eduRes.data) setEduExp(eduRes.data as EducationExperienceData[]);
       if (certRes.data) setCertificates(certRes.data as CertificateData[]);
+      if (testiRes.data) setTestimonials(testiRes.data as TestimonialData[]);
       if (inboxRes.data) setInbox(inboxRes.data as InboxMessage[]);
 
       if (profRes.data) setProfile(profRes.data as ProfileData);
@@ -879,6 +881,7 @@ function AdminPage() {
             { id: "skills", label: "Skills", icon: Wrench, badge: skills.length },
             { id: "eduexp", label: "Education & Exp", icon: GraduationCap, badge: eduExp.length },
             { id: "certificates", label: "Certificates", icon: Award, badge: certificates.length },
+            { id: "testimonials", label: "Testimonials", icon: MessageSquareQuote, badge: testimonials.length },
             {
               id: "inbox",
               label: "Inbox",
@@ -917,25 +920,27 @@ function AdminPage() {
           {/* TAB 1: OVERVIEW */}
           {activeTab === "overview" && (
             <div className="space-y-6">
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
                 <div className="p-4 rounded-xl border border-white/10 bg-neutral-900/40">
-                  <p className="text-xs font-mono text-neutral-400">Total Projects</p>
+                  <p className="text-xs font-mono text-neutral-400">Projects</p>
                   <p className="text-2xl font-bold font-mono text-white mt-1">{projects.length}</p>
                 </div>
                 <div className="p-4 rounded-xl border border-white/10 bg-neutral-900/40">
-                  <p className="text-xs font-mono text-neutral-400">Skills Tracked</p>
+                  <p className="text-xs font-mono text-neutral-400">Skills</p>
                   <p className="text-2xl font-bold font-mono text-white mt-1">{skills.length}</p>
                 </div>
                 <div className="p-4 rounded-xl border border-white/10 bg-neutral-900/40">
-                  <p className="text-xs font-mono text-neutral-400">New Inquiries</p>
-                  <p className="text-2xl font-bold font-mono text-emerald-400 mt-1">
-                    {inbox.filter((m) => !m.is_read).length}
-                  </p>
+                  <p className="text-xs font-mono text-neutral-400">Certificates</p>
+                  <p className="text-2xl font-bold font-mono text-white mt-1">{certificates.length}</p>
                 </div>
                 <div className="p-4 rounded-xl border border-white/10 bg-neutral-900/40">
-                  <p className="text-xs font-mono text-neutral-400">Database</p>
-                  <p className="text-sm font-bold font-mono text-emerald-400 mt-2 flex items-center gap-1.5">
-                    <Database className="size-3.5" /> Connected
+                  <p className="text-xs font-mono text-neutral-400">Endorsements</p>
+                  <p className="text-2xl font-bold font-mono text-emerald-400 mt-1">{testimonials.length}</p>
+                </div>
+                <div className="p-4 rounded-xl border border-white/10 bg-neutral-900/40">
+                  <p className="text-xs font-mono text-neutral-400">Inquiries</p>
+                  <p className="text-2xl font-bold font-mono text-emerald-400 mt-1">
+                    {inbox.filter((m) => !m.is_read).length}
                   </p>
                 </div>
               </div>
@@ -1427,113 +1432,6 @@ function AdminPage() {
                 ))}
               </div>
 
-                    {/* Edit Testimonial Modal */}
-      {editingTestimonial && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
-          <form
-            onSubmit={handleUpdateTestimonial}
-            className="w-full max-w-lg rounded-2xl border border-white/10 bg-neutral-900 p-6 space-y-4"
-          >
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                <Pencil className="size-4 text-emerald-400" /> Edit Client Testimonial
-              </h3>
-              <button
-                type="button"
-                onClick={() => setEditingTestimonial(null)}
-                className="text-neutral-400 hover:text-white"
-              >
-                <X className="size-4" />
-              </button>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div>
-                <label className="block text-xs font-mono text-neutral-400 mb-1">Name</label>
-                <input
-                  type="text"
-                  required
-                  value={editingTestimonial.name}
-                  onChange={(e) => setEditingTestimonial({ ...editingTestimonial, name: e.target.value })}
-                  className="w-full px-3 py-1.5 rounded-lg border border-white/10 bg-neutral-950 text-xs text-white"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-mono text-neutral-400 mb-1">Role</label>
-                <input
-                  type="text"
-                  required
-                  value={editingTestimonial.role}
-                  onChange={(e) => setEditingTestimonial({ ...editingTestimonial, role: e.target.value })}
-                  className="w-full px-3 py-1.5 rounded-lg border border-white/10 bg-neutral-950 text-xs text-white"
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div>
-                <label className="block text-xs font-mono text-neutral-400 mb-1">Company</label>
-                <input
-                  type="text"
-                  required
-                  value={editingTestimonial.company}
-                  onChange={(e) => setEditingTestimonial({ ...editingTestimonial, company: e.target.value })}
-                  className="w-full px-3 py-1.5 rounded-lg border border-white/10 bg-neutral-950 text-xs text-white"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-mono text-neutral-400 mb-1">Rating</label>
-                <select
-                  value={editingTestimonial.rating}
-                  onChange={(e) => setEditingTestimonial({ ...editingTestimonial, rating: Number(e.target.value) })}
-                  className="w-full px-3 py-1.5 rounded-lg border border-white/10 bg-neutral-950 text-xs text-white"
-                >
-                  <option value={5}>⭐⭐⭐⭐⭐ (5 Stars)</option>
-                  <option value={4}>⭐⭐⭐⭐ (4 Stars)</option>
-                  <option value={3}>⭐⭐⭐ (3 Stars)</option>
-                </select>
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-xs font-mono text-neutral-400 mb-1">Avatar URL</label>
-              <input
-                type="url"
-                value={editingTestimonial.avatar_url || ""}
-                onChange={(e) => setEditingTestimonial({ ...editingTestimonial, avatar_url: e.target.value })}
-                className="w-full px-3 py-1.5 rounded-lg border border-white/10 bg-neutral-950 text-xs text-white"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-mono text-neutral-400 mb-1">Content</label>
-              <textarea
-                required
-                rows={4}
-                value={editingTestimonial.content}
-                onChange={(e) => setEditingTestimonial({ ...editingTestimonial, content: e.target.value })}
-                className="w-full px-3 py-1.5 rounded-lg border border-white/10 bg-neutral-950 text-xs text-white"
-              />
-            </div>
-
-            <div className="flex justify-end gap-2 pt-2">
-              <button
-                type="button"
-                onClick={() => setEditingTestimonial(null)}
-                className="px-3 py-1.5 rounded-lg border border-white/10 text-xs text-neutral-400 hover:text-white"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                className="px-4 py-1.5 rounded-lg bg-emerald-500 text-neutral-950 text-xs font-bold hover:bg-emerald-400"
-              >
-                Save Changes
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
 
       {/* Edit Skill Modal */}
               {editingSkill && (
@@ -1888,6 +1786,114 @@ function AdminPage() {
                   </div>
                 ))}
               </div>
+
+              {/* Edit Testimonial Modal */}
+      {editingTestimonial && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
+          <form
+            onSubmit={handleUpdateTestimonial}
+            className="w-full max-w-lg rounded-2xl border border-white/10 bg-neutral-900 p-6 space-y-4"
+          >
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                <Pencil className="size-4 text-emerald-400" /> Edit Client Testimonial
+              </h3>
+              <button
+                type="button"
+                onClick={() => setEditingTestimonial(null)}
+                className="text-neutral-400 hover:text-white"
+              >
+                <X className="size-4" />
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-mono text-neutral-400 mb-1">Name</label>
+                <input
+                  type="text"
+                  required
+                  value={editingTestimonial.name}
+                  onChange={(e) => setEditingTestimonial({ ...editingTestimonial, name: e.target.value })}
+                  className="w-full px-3 py-1.5 rounded-lg border border-white/10 bg-neutral-950 text-xs text-white"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-mono text-neutral-400 mb-1">Role</label>
+                <input
+                  type="text"
+                  required
+                  value={editingTestimonial.role}
+                  onChange={(e) => setEditingTestimonial({ ...editingTestimonial, role: e.target.value })}
+                  className="w-full px-3 py-1.5 rounded-lg border border-white/10 bg-neutral-950 text-xs text-white"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-mono text-neutral-400 mb-1">Company</label>
+                <input
+                  type="text"
+                  required
+                  value={editingTestimonial.company}
+                  onChange={(e) => setEditingTestimonial({ ...editingTestimonial, company: e.target.value })}
+                  className="w-full px-3 py-1.5 rounded-lg border border-white/10 bg-neutral-950 text-xs text-white"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-mono text-neutral-400 mb-1">Rating</label>
+                <select
+                  value={editingTestimonial.rating}
+                  onChange={(e) => setEditingTestimonial({ ...editingTestimonial, rating: Number(e.target.value) })}
+                  className="w-full px-3 py-1.5 rounded-lg border border-white/10 bg-neutral-950 text-xs text-white"
+                >
+                  <option value={5}>⭐⭐⭐⭐⭐ (5 Stars)</option>
+                  <option value={4}>⭐⭐⭐⭐ (4 Stars)</option>
+                  <option value={3}>⭐⭐⭐ (3 Stars)</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-mono text-neutral-400 mb-1">Avatar URL</label>
+              <input
+                type="url"
+                value={editingTestimonial.avatar_url || ""}
+                onChange={(e) => setEditingTestimonial({ ...editingTestimonial, avatar_url: e.target.value })}
+                className="w-full px-3 py-1.5 rounded-lg border border-white/10 bg-neutral-950 text-xs text-white"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-mono text-neutral-400 mb-1">Content</label>
+              <textarea
+                required
+                rows={4}
+                value={editingTestimonial.content}
+                onChange={(e) => setEditingTestimonial({ ...editingTestimonial, content: e.target.value })}
+                className="w-full px-3 py-1.5 rounded-lg border border-white/10 bg-neutral-950 text-xs text-white"
+              />
+            </div>
+
+            <div className="flex justify-end gap-2 pt-2">
+              <button
+                type="button"
+                onClick={() => setEditingTestimonial(null)}
+                className="px-3 py-1.5 rounded-lg border border-white/10 text-xs text-neutral-400 hover:text-white"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="px-4 py-1.5 rounded-lg bg-emerald-500 text-neutral-950 text-xs font-bold hover:bg-emerald-400"
+              >
+                Save Changes
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
             </div>
           )}
 
