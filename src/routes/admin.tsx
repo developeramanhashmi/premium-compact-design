@@ -1,6 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import React, { useState, useEffect } from "react";
 import {
+  BarChart3,
+  Eye,
+  Monitor,
+  Smartphone,
+  Globe,
+  TrendingUp,
+  Activity,
   LayoutDashboard,
   UserRound,
   FolderKanban,
@@ -141,7 +148,7 @@ function AdminPage() {
 
   // Dashboard Data State
   const [activeTab, setActiveTab] = useState<
-    "overview" | "profile" | "projects" | "skills" | "eduexp" | "certificates" | "testimonials" | "inbox"
+    "overview" | "profile" | "projects" | "skills" | "eduexp" | "certificates" | "testimonials" | "analytics" | "inbox"
   >("overview");
   const [feedback, setFeedback] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
@@ -151,6 +158,8 @@ function AdminPage() {
   const [eduExp, setEduExp] = useState<EducationExperienceData[]>([]);
   const [certificates, setCertificates] = useState<CertificateData[]>([]);
   const [testimonials, setTestimonials] = useState<TestimonialData[]>([]);
+  const [analyticsLogs, setAnalyticsLogs] = useState<any[]>([]);
+  const [analyticsLoading, setAnalyticsLoading] = useState(false);
   const [editingTestimonial, setEditingTestimonial] = useState<TestimonialData | null>(null);
   const [newTestimonial, setNewTestimonial] = useState({
     name: "",
@@ -261,7 +270,7 @@ function AdminPage() {
   const loadAllData = async () => {
     setLoadingData(true);
     try {
-      const [profRes, projRes, skillRes, eduRes, certRes, testiRes, inboxRes] = await Promise.all([
+      const [profRes, projRes, skillRes, eduRes, certRes, testiRes, inboxRes, analyticsRes] = await Promise.all([
         supabase.from("profile").select("*").limit(1).maybeSingle(),
         supabase.from("projects").select("*").order("display_order", { ascending: true }),
         supabase.from("skills").select("*").order("display_order", { ascending: true }),
@@ -269,6 +278,7 @@ function AdminPage() {
         supabase.from("certificates").select("*").order("display_order", { ascending: true }),
         supabase.from("testimonials").select("*").order("display_order", { ascending: true }),
         supabase.from("inbox").select("*").order("created_at", { ascending: false }),
+        supabase.from("site_analytics").select("*").order("created_at", { ascending: false }).limit(100),
       ]);
 
       if (profRes.data) setProfile(profRes.data as ProfileData);
@@ -278,6 +288,7 @@ function AdminPage() {
       if (certRes.data) setCertificates(certRes.data as CertificateData[]);
       if (testiRes.data) setTestimonials(testiRes.data as TestimonialData[]);
       if (inboxRes.data) setInbox(inboxRes.data as InboxMessage[]);
+      if (analyticsRes.data) setAnalyticsLogs(analyticsRes.data);
 
       if (profRes.data) setProfile(profRes.data as ProfileData);
       if (projRes.data) setProjects(projRes.data as ProjectData[]);
@@ -882,6 +893,7 @@ function AdminPage() {
             { id: "eduexp", label: "Education & Exp", icon: GraduationCap, badge: eduExp.length },
             { id: "certificates", label: "Certificates", icon: Award, badge: certificates.length },
             { id: "testimonials", label: "Testimonials", icon: MessageSquareQuote, badge: testimonials.length },
+            { id: "analytics", label: "Visitor Analytics", icon: BarChart3, badge: analyticsLogs.length || undefined },
             {
               id: "inbox",
               label: "Inbox",
