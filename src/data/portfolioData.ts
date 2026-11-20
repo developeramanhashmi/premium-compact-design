@@ -28,6 +28,19 @@ export interface EducationExperience {
   grade?: string;
 }
 
+export interface Testimonial {
+  id: string;
+  name: string;
+  role: string;
+  company: string;
+  content: string;
+  rating: number;
+  avatar_url?: string;
+  project_tag?: string;
+  display_order?: number;
+  is_featured?: boolean;
+}
+
 export const PORTFOLIO_DATA = {
   profile: {
     name: "Aman Alam",
@@ -229,6 +242,45 @@ export const PORTFOLIO_DATA = {
       href: "https://drive.google.com/file/d/1MbqVIuDA9oeRaTqK4Dnquj_Ejr_32MBk/view?usp=drive_link",
     },
   ] as Certificate[],
+
+  testimonials: [
+    {
+      id: "testi-1",
+      name: "Vikramaditya S.",
+      role: "Founder & CTO",
+      company: "Devgronix Partner Tech",
+      content: "Aman engineered our analytics pipeline and frontend dashboard with exceptional speed and precision. The UX feels high-tier, and complex data flows were delivered with remarkable clarity.",
+      rating: 5,
+      avatar_url: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&h=200&q=80",
+      project_tag: "Full-Stack & Cloud",
+      display_order: 1,
+      is_featured: true,
+    },
+    {
+      id: "testi-2",
+      name: "Neha Sharma",
+      role: "Senior Product Lead",
+      company: "Fintech Solutions",
+      content: "The risk segmentation and loan default analysis models Aman built gave us actionable credit insights within days. A rare blend of rigorous data analytics and modern frontend craftsmanship.",
+      rating: 5,
+      avatar_url: "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=200&h=200&q=80",
+      project_tag: "Data Analytics & ML",
+      display_order: 2,
+      is_featured: true,
+    },
+    {
+      id: "testi-3",
+      name: "Karthik Nair",
+      role: "Co-Founder",
+      company: "CloudEdge Studios",
+      content: "Aman is an outstanding developer who owns the problem end-to-end. He took our prototype from wireframes to an interactive, performant web app with seamless attention to detail.",
+      rating: 5,
+      avatar_url: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&h=200&q=80",
+      project_tag: "Web Architecture",
+      display_order: 3,
+      is_featured: true,
+    },
+  ] as Testimonial[],
 
   skills: [
     { name: "Python", category: "Core", level: 90 },
