@@ -25,6 +25,9 @@ import {
   CheckCheck,
   Send,
   MessageCircle,
+  MessageSquareQuote,
+  Star,
+  Quote,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -47,6 +50,7 @@ interface ProfileData {
   badge?: string;
   location?: string;
   email: string;
+  whatsapp?: string;
   github?: string;
   twitter?: string;
   linkedin?: string;
@@ -74,6 +78,19 @@ interface SkillData {
   display_order: number;
 }
 
+
+interface TestimonialData {
+  id: string;
+  name: string;
+  role: string;
+  company: string;
+  content: string;
+  rating: number;
+  avatar_url?: string;
+  project_tag?: string;
+  display_order: number;
+  is_featured: boolean;
+}
 
 interface CertificateData {
   id: string;
@@ -133,6 +150,19 @@ function AdminPage() {
   const [skills, setSkills] = useState<SkillData[]>([]);
   const [eduExp, setEduExp] = useState<EducationExperienceData[]>([]);
   const [certificates, setCertificates] = useState<CertificateData[]>([]);
+  const [testimonials, setTestimonials] = useState<TestimonialData[]>([]);
+  const [editingTestimonial, setEditingTestimonial] = useState<TestimonialData | null>(null);
+  const [newTestimonial, setNewTestimonial] = useState({
+    name: "",
+    role: "",
+    company: "",
+    content: "",
+    rating: 5,
+    avatar_url: "",
+    project_tag: "Full-Stack",
+    is_featured: true,
+  });
+
   const [editingCertificate, setEditingCertificate] = useState<CertificateData | null>(null);
   const [newCertificate, setNewCertificate] = useState({
     tag: "Certification",
@@ -273,6 +303,7 @@ function AdminPage() {
         badge: profile.badge,
         location: profile.location,
         email: profile.email,
+        whatsapp: profile.whatsapp,
         github: profile.github,
         twitter: profile.twitter,
         linkedin: profile.linkedin,
@@ -498,6 +529,88 @@ function AdminPage() {
   };
 
   
+
+  // Testimonial CRUD Actions
+  const handleAddTestimonial = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newTestimonial.name.trim() || !newTestimonial.content.trim()) {
+      showFeedback("error", "Client Name and Testimonial Content are required.");
+      return;
+    }
+
+    const payload: TestimonialData = {
+      id: "testi-" + Date.now().toString().slice(-6),
+      name: newTestimonial.name.trim(),
+      role: newTestimonial.role.trim() || "Client",
+      company: newTestimonial.company.trim() || "Independent",
+      content: newTestimonial.content.trim(),
+      rating: Number(newTestimonial.rating) || 5,
+      avatar_url: newTestimonial.avatar_url?.trim() || undefined,
+      project_tag: newTestimonial.project_tag?.trim() || "Full-Stack",
+      display_order: testimonials.length + 1,
+      is_featured: newTestimonial.is_featured,
+    };
+
+    const { error } = await supabase.from("testimonials").insert(payload);
+    if (error) {
+      showFeedback("error", "Failed to add testimonial: " + error.message);
+    } else {
+      setTestimonials((prev) => [...prev, payload]);
+      setNewTestimonial({
+        name: "",
+        role: "",
+        company: "",
+        content: "",
+        rating: 5,
+        avatar_url: "",
+        project_tag: "Full-Stack",
+        is_featured: true,
+      });
+      showFeedback("success", "Testimonial published live!");
+    }
+  };
+
+  const handleUpdateTestimonial = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingTestimonial) return;
+
+    const { error } = await supabase
+      .from("testimonials")
+      .update({
+        name: editingTestimonial.name,
+        role: editingTestimonial.role,
+        company: editingTestimonial.company,
+        content: editingTestimonial.content,
+        rating: editingTestimonial.rating,
+        avatar_url: editingTestimonial.avatar_url,
+        project_tag: editingTestimonial.project_tag,
+        display_order: editingTestimonial.display_order,
+        is_featured: editingTestimonial.is_featured,
+      })
+      .eq("id", editingTestimonial.id);
+
+    if (error) {
+      showFeedback("error", "Failed to update testimonial: " + error.message);
+    } else {
+      setTestimonials((prev) =>
+        prev.map((t) => (t.id === editingTestimonial.id ? editingTestimonial : t))
+      );
+      setEditingTestimonial(null);
+      showFeedback("success", "Testimonial updated live!");
+    }
+  };
+
+  const handleDeleteTestimonial = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this client testimonial?")) return;
+    const { error } = await supabase.from("testimonials").delete().eq("id", id);
+    if (error) {
+      showFeedback("error", "Failed to delete testimonial: " + error.message);
+    } else {
+      setTestimonials((prev) => prev.filter((t) => t.id !== id));
+      showFeedback("success", "Testimonial removed.");
+    }
+  };
+
   // Certificate Actions
   const handleAddCertificate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -1314,7 +1427,115 @@ function AdminPage() {
                 ))}
               </div>
 
-              {/* Edit Skill Modal */}
+                    {/* Edit Testimonial Modal */}
+      {editingTestimonial && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
+          <form
+            onSubmit={handleUpdateTestimonial}
+            className="w-full max-w-lg rounded-2xl border border-white/10 bg-neutral-900 p-6 space-y-4"
+          >
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                <Pencil className="size-4 text-emerald-400" /> Edit Client Testimonial
+              </h3>
+              <button
+                type="button"
+                onClick={() => setEditingTestimonial(null)}
+                className="text-neutral-400 hover:text-white"
+              >
+                <X className="size-4" />
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-mono text-neutral-400 mb-1">Name</label>
+                <input
+                  type="text"
+                  required
+                  value={editingTestimonial.name}
+                  onChange={(e) => setEditingTestimonial({ ...editingTestimonial, name: e.target.value })}
+                  className="w-full px-3 py-1.5 rounded-lg border border-white/10 bg-neutral-950 text-xs text-white"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-mono text-neutral-400 mb-1">Role</label>
+                <input
+                  type="text"
+                  required
+                  value={editingTestimonial.role}
+                  onChange={(e) => setEditingTestimonial({ ...editingTestimonial, role: e.target.value })}
+                  className="w-full px-3 py-1.5 rounded-lg border border-white/10 bg-neutral-950 text-xs text-white"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-mono text-neutral-400 mb-1">Company</label>
+                <input
+                  type="text"
+                  required
+                  value={editingTestimonial.company}
+                  onChange={(e) => setEditingTestimonial({ ...editingTestimonial, company: e.target.value })}
+                  className="w-full px-3 py-1.5 rounded-lg border border-white/10 bg-neutral-950 text-xs text-white"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-mono text-neutral-400 mb-1">Rating</label>
+                <select
+                  value={editingTestimonial.rating}
+                  onChange={(e) => setEditingTestimonial({ ...editingTestimonial, rating: Number(e.target.value) })}
+                  className="w-full px-3 py-1.5 rounded-lg border border-white/10 bg-neutral-950 text-xs text-white"
+                >
+                  <option value={5}>⭐⭐⭐⭐⭐ (5 Stars)</option>
+                  <option value={4}>⭐⭐⭐⭐ (4 Stars)</option>
+                  <option value={3}>⭐⭐⭐ (3 Stars)</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-mono text-neutral-400 mb-1">Avatar URL</label>
+              <input
+                type="url"
+                value={editingTestimonial.avatar_url || ""}
+                onChange={(e) => setEditingTestimonial({ ...editingTestimonial, avatar_url: e.target.value })}
+                className="w-full px-3 py-1.5 rounded-lg border border-white/10 bg-neutral-950 text-xs text-white"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-mono text-neutral-400 mb-1">Content</label>
+              <textarea
+                required
+                rows={4}
+                value={editingTestimonial.content}
+                onChange={(e) => setEditingTestimonial({ ...editingTestimonial, content: e.target.value })}
+                className="w-full px-3 py-1.5 rounded-lg border border-white/10 bg-neutral-950 text-xs text-white"
+              />
+            </div>
+
+            <div className="flex justify-end gap-2 pt-2">
+              <button
+                type="button"
+                onClick={() => setEditingTestimonial(null)}
+                className="px-3 py-1.5 rounded-lg border border-white/10 text-xs text-neutral-400 hover:text-white"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="px-4 py-1.5 rounded-lg bg-emerald-500 text-neutral-950 text-xs font-bold hover:bg-emerald-400"
+              >
+                Save Changes
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      {/* Edit Skill Modal */}
               {editingSkill && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
                   <div className="w-full max-w-sm rounded-2xl border border-white/15 bg-neutral-900 p-5 space-y-3 shadow-2xl relative">
@@ -1514,6 +1735,162 @@ function AdminPage() {
 
           
           {/* TAB: CERTIFICATES */}
+                    {/* ================= TESTIMONIALS TAB ================= */}
+          {activeTab === "testimonials" && (
+            <div className="space-y-6">
+              {/* Add Testimonial Form */}
+              <form onSubmit={handleAddTestimonial} className="p-4 rounded-xl border border-white/10 bg-neutral-900/40 space-y-3">
+                <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                  <Plus className="size-4 text-emerald-400" /> Add Client Testimonial / Endorsement
+                </h3>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div>
+                    <label className="block text-[11px] font-mono text-neutral-400 mb-1">Client / Author Name *</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. Vikramaditya S."
+                      value={newTestimonial.name}
+                      onChange={(e) => setNewTestimonial({ ...newTestimonial, name: e.target.value })}
+                      className="w-full px-3 py-1.5 rounded-lg border border-white/10 bg-neutral-950 text-xs text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-mono text-neutral-400 mb-1">Role / Designation *</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. Founder & CTO"
+                      value={newTestimonial.role}
+                      onChange={(e) => setNewTestimonial({ ...newTestimonial, role: e.target.value })}
+                      className="w-full px-3 py-1.5 rounded-lg border border-white/10 bg-neutral-950 text-xs text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-mono text-neutral-400 mb-1">Company / Organization *</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. Devgronix Partner Tech"
+                      value={newTestimonial.company}
+                      onChange={(e) => setNewTestimonial({ ...newTestimonial, company: e.target.value })}
+                      className="w-full px-3 py-1.5 rounded-lg border border-white/10 bg-neutral-950 text-xs text-white"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div>
+                    <label className="block text-[11px] font-mono text-neutral-400 mb-1">Rating (1 to 5 Stars)</label>
+                    <select
+                      value={newTestimonial.rating}
+                      onChange={(e) => setNewTestimonial({ ...newTestimonial, rating: Number(e.target.value) })}
+                      className="w-full px-3 py-1.5 rounded-lg border border-white/10 bg-neutral-950 text-xs text-white"
+                    >
+                      <option value={5}>⭐⭐⭐⭐⭐ (5 Stars)</option>
+                      <option value={4}>⭐⭐⭐⭐ (4 Stars)</option>
+                      <option value={3}>⭐⭐⭐ (3 Stars)</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-mono text-neutral-400 mb-1">Project Domain / Tag</label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Full-Stack & Cloud"
+                      value={newTestimonial.project_tag}
+                      onChange={(e) => setNewTestimonial({ ...newTestimonial, project_tag: e.target.value })}
+                      className="w-full px-3 py-1.5 rounded-lg border border-white/10 bg-neutral-950 text-xs text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-mono text-neutral-400 mb-1">Client Avatar Image URL (optional)</label>
+                    <input
+                      type="url"
+                      placeholder="https://..."
+                      value={newTestimonial.avatar_url}
+                      onChange={(e) => setNewTestimonial({ ...newTestimonial, avatar_url: e.target.value })}
+                      className="w-full px-3 py-1.5 rounded-lg border border-white/10 bg-neutral-950 text-xs text-white"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-mono text-neutral-400 mb-1">Endorsement / Feedback Content *</label>
+                  <textarea
+                    required
+                    rows={3}
+                    placeholder="Write the client endorsement quote..."
+                    value={newTestimonial.content}
+                    onChange={(e) => setNewTestimonial({ ...newTestimonial, content: e.target.value })}
+                    className="w-full px-3 py-1.5 rounded-lg border border-white/10 bg-neutral-950 text-xs text-white"
+                  />
+                </div>
+
+                <div className="flex justify-end">
+                  <button
+                    type="submit"
+                    className="px-4 py-2 rounded-lg bg-emerald-500 text-neutral-950 text-xs font-bold hover:bg-emerald-400 transition"
+                  >
+                    Publish Testimonial
+                  </button>
+                </div>
+              </form>
+
+              {/* Testimonials List */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {testimonials.map((testi) => (
+                  <div
+                    key={testi.id}
+                    className="p-4 rounded-xl border border-white/10 bg-neutral-900/30 flex flex-col justify-between space-y-3"
+                  >
+                    <div>
+                      <div className="flex items-center justify-between gap-2 mb-2">
+                        <div className="flex items-center gap-1 text-amber-400">
+                          {Array.from({ length: testi.rating || 5 }).map((_, i) => (
+                            <Star key={i} className="size-3.5 fill-amber-400 text-amber-400" />
+                          ))}
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => setEditingTestimonial(testi)}
+                            className="p-1 rounded text-neutral-400 hover:text-white hover:bg-white/5"
+                            title="Edit testimonial"
+                          >
+                            <Pencil className="size-3.5" />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteTestimonial(testi.id)}
+                            className="p-1 rounded text-neutral-400 hover:text-red-400 hover:bg-white/5"
+                            title="Delete testimonial"
+                          >
+                            <Trash2 className="size-3.5" />
+                          </button>
+                        </div>
+                      </div>
+
+                      <p className="text-xs text-neutral-300 italic mb-3">"{testi.content}"</p>
+                    </div>
+
+                    <div className="flex items-center gap-2.5 pt-2 border-t border-white/5 text-xs">
+                      {testi.avatar_url ? (
+                        <img src={testi.avatar_url} alt="" className="size-8 rounded-full object-cover" />
+                      ) : (
+                        <div className="size-8 rounded-full bg-emerald-500/10 text-emerald-400 flex items-center justify-center font-bold text-[10px]">
+                          {testi.name.slice(0, 2).toUpperCase()}
+                        </div>
+                      )}
+                      <div>
+                        <p className="font-semibold text-white">{testi.name}</p>
+                        <p className="text-[11px] text-neutral-400">{testi.role} • {testi.company}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {activeTab === "certificates" && (
             <div className="space-y-6">
               {/* Add Certificate Form */}
