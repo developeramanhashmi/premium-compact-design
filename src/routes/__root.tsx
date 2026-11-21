@@ -94,23 +94,38 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "apple-mobile-web-app-title", content: "Aman Alam" },
       { name: "application-name", content: "Aman Alam" },
 
-      // OpenGraph defaults
+      // OpenGraph (WhatsApp, LinkedIn, Telegram, Facebook)
       { property: "og:title", content: "Aman Alam — Founder of DEVGRONIX" },
       {
         property: "og:description",
         content:
-          "Founder & Full-Stack Architect at DEVGRONIX. Data Analyst from IIT Madras & MANUU.",
+          "Founder & Lead Architect at DEVGRONIX. Data Analyst with IIT Madras & MANUU background.",
       },
       { property: "og:type", content: "website" },
+      { property: "og:url", content: "https://founder.devgronix.com" },
+      { property: "og:site_name", content: "Aman Alam — Founder of DEVGRONIX" },
+      { property: "og:image", content: "https://founder.devgronix.com/og-image.png" },
+      { property: "og:image:secure_url", content: "https://founder.devgronix.com/og-image.png" },
+      { property: "og:image:type", content: "image/png" },
+      { property: "og:image:width", content: "1200" },
+      { property: "og:image:height", content: "630" },
+
+      // Twitter / X Card
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:site", content: "@amanalam93" },
       { name: "twitter:creator", content: "@amanalam93" },
+      { name: "twitter:title", content: "Aman Alam — Founder of DEVGRONIX" },
+      {
+        name: "twitter:description",
+        content:
+          "Founder of DEVGRONIX & Data Analyst from IIT Madras & MANUU.",
+      },
+      { name: "twitter:image", content: "https://founder.devgronix.com/og-image.png" },
     ],
     links: [
-      {
-        rel: "stylesheet",
-        href: appCss,
-      },
+      { rel: "canonical", href: "https://founder.devgronix.com" },
+      { rel: "image_src", href: "https://founder.devgronix.com/og-image.png" },
+      { rel: "stylesheet", href: appCss },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
@@ -127,6 +142,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   notFoundComponent: NotFoundComponent,
   errorComponent: ErrorComponent,
 });
+
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
