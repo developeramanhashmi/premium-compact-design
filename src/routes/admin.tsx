@@ -1156,6 +1156,35 @@ function AdminPage() {
             </form>
           )}
 
+          {activeTab === "profile" && !profile && (
+            <section
+              aria-labelledby="profile-unavailable-title"
+              aria-busy={loadingData}
+              className="space-y-3 rounded-lg border border-white/10 bg-neutral-900/40 p-4"
+            >
+              <h2 id="profile-unavailable-title" className="text-sm font-bold text-white">
+                Profile &amp; Status
+              </h2>
+              <p role={loadingData ? "status" : "alert"} className="text-xs text-neutral-400">
+                {loadingData
+                  ? "Loading profile details…"
+                  : "Profile details are unavailable. Try loading them again."}
+              </p>
+              {!loadingData && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => void loadAllData()}
+                  className="border-white/10 bg-white/5 text-neutral-300 hover:bg-white/10 hover:text-white"
+                >
+                  <RefreshCw className="size-3.5" />
+                  Try again
+                </Button>
+              )}
+            </section>
+          )}
+
           {/* TAB 3: PROJECTS */}
           {activeTab === "projects" && (
             <div className="space-y-8">
