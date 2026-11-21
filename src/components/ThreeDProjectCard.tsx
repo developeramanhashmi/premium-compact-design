@@ -6,9 +6,15 @@ interface ThreeDProjectCardProps {
   project: Project;
   onOpen: (project: Project) => void;
   className?: string;
+  isActive?: boolean;
 }
 
-export function ThreeDProjectCard({ project, onOpen, className = "" }: ThreeDProjectCardProps) {
+export function ThreeDProjectCard({ 
+  project, 
+  onOpen, 
+  className = "", 
+  isActive = false 
+}: ThreeDProjectCardProps) {
   const cardRef = useRef<HTMLDivElement>(null);
   const [rotate, setRotate] = useState({ x: 0, y: 0 });
   const [glare, setGlare] = useState({ x: 50, y: 50, opacity: 0 });
@@ -26,7 +32,6 @@ export function ThreeDProjectCard({ project, onOpen, className = "" }: ThreeDPro
     const centerX = rect.width / 2;
     const centerY = rect.height / 2;
 
-    // Smooth tilt (up to 12 degrees)
     const rotateX = ((y - centerY) / centerY) * -10;
     const rotateY = ((x - centerX) / centerX) * 10;
 
@@ -63,9 +68,13 @@ export function ThreeDProjectCard({ project, onOpen, className = "" }: ThreeDPro
           transition: isHovered ? "transform 0.08s ease-out" : "transform 0.5s cubic-bezier(0.23, 1, 0.32, 1)",
           transformStyle: "preserve-3d",
         }}
-        className="relative group rounded-2xl border border-white/20 bg-gradient-to-b from-white/[0.14] via-white/[0.04] to-black/75 p-5 backdrop-blur-2xl shadow-[0_15px_35px_rgba(0,0,0,0.6)] transition-all duration-300 hover:shadow-[0_20px_50px_rgba(56,189,248,0.35)] hover:border-white/40 overflow-hidden flex flex-col justify-between"
+        className={`relative group rounded-2xl p-5 backdrop-blur-2xl transition-all duration-300 overflow-hidden flex flex-col justify-between ${
+          isActive
+            ? "border-2 border-cyan-400/60 bg-gradient-to-b from-white/[0.18] via-white/[0.06] to-black/80 shadow-[0_25px_60px_rgba(56,189,248,0.45)]"
+            : "border border-white/20 bg-gradient-to-b from-white/[0.12] via-white/[0.03] to-black/75 shadow-[0_15px_35px_rgba(0,0,0,0.6)] hover:border-white/40"
+        }`}
       >
-        {/* Specular Glare Reflection */}
+        {/* Specular Glare */}
         <div
           className="pointer-events-none absolute inset-0 rounded-2xl transition-opacity duration-200"
           style={{
@@ -75,7 +84,9 @@ export function ThreeDProjectCard({ project, onOpen, className = "" }: ThreeDPro
 
         {/* Ambient Glow */}
         <div
-          className={`pointer-events-none absolute -top-10 left-1/2 -translate-x-1/2 size-36 rounded-full blur-2xl opacity-35 transition-all duration-500 group-hover:scale-125 group-hover:opacity-60 ${
+          className={`pointer-events-none absolute -top-10 left-1/2 -translate-x-1/2 size-36 rounded-full blur-2xl transition-all duration-500 ${
+            isActive ? "opacity-60 scale-125" : "opacity-30 group-hover:opacity-50"
+          } ${
             isDevgronix
               ? "bg-violet-500"
               : isDataAnalysis
@@ -86,7 +97,7 @@ export function ThreeDProjectCard({ project, onOpen, className = "" }: ThreeDPro
         />
 
         <div>
-          {/* Header: Tag & ID */}
+          {/* Header */}
           <div
             className="relative flex items-center justify-between pb-2.5 border-b border-white/10"
             style={{ transform: "translateZ(25px)" }}
@@ -109,12 +120,14 @@ export function ThreeDProjectCard({ project, onOpen, className = "" }: ThreeDPro
             </span>
           </div>
 
-          {/* Compact 3D Gem Icon */}
+          {/* Compact 3D Gem */}
           <div
             className="relative mt-3.5 mb-2.5 flex items-center justify-center"
             style={{ transform: "translateZ(35px)" }}
           >
-            <div className="relative size-12 rounded-xl p-0.5 bg-gradient-to-tr from-cyan-400 via-indigo-400 to-fuchsia-400 shadow-[0_0_20px_rgba(56,189,248,0.5)] group-hover:shadow-[0_0_30px_rgba(56,189,248,0.75)] transition-shadow">
+            <div className={`relative size-12 rounded-xl p-0.5 bg-gradient-to-tr from-cyan-400 via-indigo-400 to-fuchsia-400 transition-shadow ${
+              isActive ? "shadow-[0_0_28px_rgba(56,189,248,0.7)]" : "shadow-[0_0_15px_rgba(56,189,248,0.4)]"
+            }`}>
               <div className="size-full rounded-[10px] bg-black/70 backdrop-blur-xl flex items-center justify-center border border-white/30">
                 <div className="relative flex items-center justify-center">
                   <div className="size-5 rotate-45 border-2 border-cyan-300 bg-gradient-to-br from-cyan-200/90 via-blue-400/70 to-purple-600/80 shadow-inner" />
@@ -124,7 +137,7 @@ export function ThreeDProjectCard({ project, onOpen, className = "" }: ThreeDPro
             </div>
           </div>
 
-          {/* Title & Description */}
+          {/* Title & Desc */}
           <div
             className="relative text-center"
             style={{ transform: "translateZ(28px)" }}
@@ -137,7 +150,7 @@ export function ThreeDProjectCard({ project, onOpen, className = "" }: ThreeDPro
             </p>
           </div>
 
-          {/* Compact Tech Chips */}
+          {/* Tech Chips */}
           <div
             className="relative mt-3 flex flex-wrap justify-center gap-1"
             style={{ transform: "translateZ(20px)" }}
@@ -158,13 +171,17 @@ export function ThreeDProjectCard({ project, onOpen, className = "" }: ThreeDPro
           </div>
         </div>
 
-        {/* Compact Glossy "Explore Now" Pill */}
+        {/* CTA Button */}
         <div
           className="relative mt-4 pt-1 flex items-center justify-center"
           style={{ transform: "translateZ(30px)" }}
         >
-          <div className="group/btn relative inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-[11px] font-semibold text-white tracking-wide border border-white/40 bg-gradient-to-r from-cyan-500/80 via-blue-600/80 to-indigo-600/80 shadow-[0_6px_15px_rgba(56,189,248,0.35)] hover:shadow-[0_8px_20px_rgba(56,189,248,0.55)] hover:scale-105 active:scale-95 transition-all duration-200">
-            <span>Explore Now</span>
+          <div className={`group/btn relative inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-[11px] font-semibold text-white tracking-wide border transition-all duration-200 ${
+            isActive
+              ? "border-cyan-300 bg-gradient-to-r from-cyan-500 via-blue-600 to-indigo-600 shadow-[0_8px_25px_rgba(56,189,248,0.55)] scale-105"
+              : "border-white/30 bg-white/10 hover:border-white/60 hover:bg-white/20"
+          }`}>
+            <span>{isActive ? "Explore Now" : "Quick View"}</span>
             <ArrowUpRight className="size-3 transition-transform group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5" />
           </div>
         </div>
