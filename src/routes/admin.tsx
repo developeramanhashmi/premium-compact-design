@@ -38,6 +38,8 @@ import {
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import { AdminAnalyticsCharts } from "@/components/AdminAnalyticsCharts";
+
 
 export const Route = createFileRoute("/admin")({
   head: () => ({
@@ -2215,6 +2217,8 @@ function AdminPage() {
                       </div>
                     ))}
                   </div>
+                  {/* Analytics Charts */}
+                  <AdminAnalyticsCharts logs={analyticsLogs} />
 
                   {analyticsLoading ? (
                     <div role="status" className="rounded-lg border border-white/10 bg-neutral-900/30 px-4 py-8 text-center text-xs text-neutral-400">
