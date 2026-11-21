@@ -34,7 +34,8 @@ export function PortfolioHome() {
 
 
   // Dynamic state loaded from Supabase with instant static fallback
-  const [profile, setProfile] = useState(PORTFOLIO_DATA.profile);
+  type PortfolioProfile = typeof PORTFOLIO_DATA.profile & { whatsapp?: string };
+  const [profile, setProfile] = useState<PortfolioProfile>(PORTFOLIO_DATA.profile);
   const [projects, setProjects] = useState<Project[]>(PORTFOLIO_DATA.projects);
   const [skills, setSkills] = useState(PORTFOLIO_DATA.skills);
   const [educationAndExperience, setEducationAndExperience] = useState(PORTFOLIO_DATA.educationAndExperience);
@@ -62,15 +63,16 @@ export function PortfolioHome() {
           supabase.from("testimonials").select("*").order("display_order", { ascending: true }),
         ]);
 
-        if (profRes.data) {
+        const profileData = profRes.data;
+        if (profileData) {
           setProfile((prev) => ({
             ...prev,
-            name: profRes.data.name || prev.name,
-            title: profRes.data.title || prev.title,
-            badge: profRes.data.badge || prev.badge,
-            bio: profRes.data.bio || prev.bio,
-            github: profRes.data.github || prev.github,
-            email: profRes.data.email || prev.email,
+            name: profileData.name || prev.name,
+            title: profileData.title || prev.title,
+            badge: profileData.badge || prev.badge,
+            bio: profileData.bio || prev.bio,
+            github: profileData.github || prev.github,
+            email: profileData.email || prev.email,
           }));
         }
 
@@ -660,7 +662,7 @@ export function PortfolioHome() {
       <Footer />
       <DevTerminal isOpen={isTerminalOpen} onClose={() => setIsTerminalOpen(false)} />
       <ProjectDetailModal project={selectedProject} onClose={() => setSelectedProject(null)} />
-      <FloatingWhatsApp phoneNumber={profile.whatsapp} />
+      <FloatingWhatsApp {...(profile.whatsapp ? { phoneNumber: profile.whatsapp } : {})} />
     </div>
   );
 }

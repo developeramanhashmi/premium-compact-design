@@ -82,6 +82,7 @@ export function NetworkNodesCanvas() {
       // Update and draw nodes
       for (let i = 0; i < nodes.length; i++) {
         const node = nodes[i];
+        if (!node) continue;
         node.x += node.vx;
         node.y += node.vy;
 
@@ -97,6 +98,7 @@ export function NetworkNodesCanvas() {
         // Connect with other nodes
         for (let j = i + 1; j < nodes.length; j++) {
           const other = nodes[j];
+          if (!other) continue;
           const dx = node.x - other.x;
           const dy = node.y - other.y;
           const dist = Math.sqrt(dx * dx + dy * dy);

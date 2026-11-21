@@ -74,7 +74,7 @@ interface ProjectData {
   features: string[];
   cta: string;
   href: string;
-  github_href?: string;
+  github_href?: string | null;
   display_order: number;
 }
 
@@ -94,8 +94,8 @@ interface TestimonialData {
   company: string;
   content: string;
   rating: number;
-  avatar_url?: string;
-  project_tag?: string;
+  avatar_url?: string | null;
+  project_tag?: string | null;
   display_order: number;
   is_featured: boolean;
 }
@@ -104,7 +104,7 @@ interface CertificateData {
   id: string;
   tag: string;
   name: string;
-  description?: string;
+  description?: string | null;
   href: string;
   display_order: number;
 }
@@ -116,7 +116,7 @@ interface EducationExperienceData {
   organization: string;
   period: string;
   description: string;
-  grade?: string;
+  grade?: string | null;
   display_order: number;
 }
 
@@ -340,21 +340,21 @@ function AdminPage() {
   // 1. Profile & Availability Save
   const handleSaveProfile = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
-    if (!profile) return;
+    if (!profile?.id) return;
 
     const { error } = await supabase
       .from("profile")
       .update({
         name: profile.name,
-        alternate_name: profile.alternate_name,
+        alternate_name: profile.alternate_name ?? null,
         title: profile.title,
-        badge: profile.badge,
-        location: profile.location,
+        badge: profile.badge ?? null,
+        location: profile.location ?? null,
         email: profile.email,
-        whatsapp: profile.whatsapp,
-        github: profile.github,
-        twitter: profile.twitter,
-        linkedin: profile.linkedin,
+        whatsapp: profile.whatsapp ?? null,
+        github: profile.github ?? null,
+        twitter: profile.twitter ?? null,
+        linkedin: profile.linkedin ?? null,
         bio: profile.bio,
         updated_at: new Date().toISOString(),
       })
@@ -368,7 +368,7 @@ function AdminPage() {
   };
 
   const handleSetPresetBadge = async (preset: string) => {
-    if (!profile) return;
+    if (!profile?.id) return;
     const updated = { ...profile, badge: preset };
     setProfile(updated);
 
@@ -405,7 +405,7 @@ function AdminPage() {
       features: featArray,
       cta: newProject.cta || "Live Demo",
       href: newProject.href.trim(),
-      github_href: newProject.github_href.trim() || undefined,
+      github_href: newProject.github_href.trim() || null,
       display_order: projects.length + 1,
     };
 
@@ -542,7 +542,7 @@ function AdminPage() {
       organization: newEduExp.organization.trim(),
       period: newEduExp.period.trim(),
       description: newEduExp.description.trim(),
-      grade: newEduExp.grade.trim() || undefined,
+      grade: newEduExp.grade.trim() || null,
       display_order: eduExp.length + 1,
     };
 
@@ -593,7 +593,7 @@ function AdminPage() {
       company: newTestimonial.company.trim() || "Independent",
       content: newTestimonial.content.trim(),
       rating: Number(newTestimonial.rating) || 5,
-      avatar_url: newTestimonial.avatar_url?.trim() || undefined,
+      avatar_url: newTestimonial.avatar_url?.trim() || null,
       project_tag: newTestimonial.project_tag?.trim() || "Full-Stack",
       display_order: testimonials.length + 1,
       is_featured: newTestimonial.is_featured,
@@ -630,8 +630,8 @@ function AdminPage() {
         company: editingTestimonial.company,
         content: editingTestimonial.content,
         rating: editingTestimonial.rating,
-        avatar_url: editingTestimonial.avatar_url,
-        project_tag: editingTestimonial.project_tag,
+        avatar_url: editingTestimonial.avatar_url ?? null,
+        project_tag: editingTestimonial.project_tag ?? null,
         display_order: editingTestimonial.display_order,
         is_featured: editingTestimonial.is_featured,
       })
@@ -670,7 +670,7 @@ function AdminPage() {
       id: "cert-" + Date.now().toString().slice(-5),
       tag: newCertificate.tag.trim(),
       name: newCertificate.name.trim(),
-      description: newCertificate.description.trim() || undefined,
+      description: newCertificate.description.trim() || null,
       href: newCertificate.href.trim(),
       display_order: certificates.length + 1,
     };
