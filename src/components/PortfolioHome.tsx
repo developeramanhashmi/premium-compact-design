@@ -15,6 +15,7 @@ import { Star, Quote, MessageSquareQuote, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { ThreeDProjectShowcase } from "./ThreeDProjectShowcase";
+import { ClientTrustTestimonials } from "./ClientTrustTestimonials";
 import { 
   Github, 
   ArrowUpRight, 
@@ -333,6 +334,10 @@ export function PortfolioHome() {
           />
         </div>
       </section>
+
+      {/* ================= CLIENT TRUST & TESTIMONIALS ================= */}
+      <ClientTrustTestimonials testimonials={testimonials} />
+
 
       {/* ================= SKILLS ================= */}
       <section id="skills" className="py-20 border-b border-white/5">
