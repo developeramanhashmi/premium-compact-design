@@ -1,48 +1,68 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 export function SpotlightGlow() {
-  const [pos, setPos] = useState<{ x: number; y: number }>({ x: -1000, y: -1000 });
-  const [isVisible, setIsVisible] = useState(false);
+  const glowRef = useRef<HTMLDivElement | null>(null);
   const [isHoverDevice, setIsHoverDevice] = useState(true);
 
   useEffect(() => {
-    // Check if device supports mouse/cursor
     const mediaQuery = window.matchMedia("(hover: hover)");
     setIsHoverDevice(mediaQuery.matches);
 
+    const glowEl = glowRef.current;
+    if (!glowEl || !mediaQuery.matches) return;
+
+    let rafId: number | null = null;
+    let targetX = -1000;
+    let targetY = -1000;
+
+    const updateGlow = () => {
+      if (glowEl) {
+        glowEl.style.opacity = "1";
+        glowEl.style.background = `radial-gradient(580px circle at ${targetX}px ${targetY}px, rgba(16, 185, 129, 0.18), rgba(139, 92, 246, 0.10), transparent 68%)`;
+      }
+      rafId = null;
+    };
+
     const handlePointerMove = (e: PointerEvent) => {
-      setPos({ x: e.clientX, y: e.clientY });
-      setIsVisible(true);
+      targetX = e.clientX;
+      targetY = e.clientY;
+      if (!rafId) {
+        rafId = requestAnimationFrame(updateGlow);
+      }
     };
 
     const handlePointerLeave = () => {
-      setIsVisible(false);
+      if (rafId) {
+        cancelAnimationFrame(rafId);
+        rafId = null;
+      }
+      if (glowEl) {
+        glowEl.style.opacity = "0";
+      }
     };
 
     window.addEventListener("pointermove", handlePointerMove, { passive: true });
     document.addEventListener("mouseleave", handlePointerLeave);
 
     return () => {
+      if (rafId) cancelAnimationFrame(rafId);
       window.removeEventListener("pointermove", handlePointerMove);
       document.removeEventListener("mouseleave", handlePointerLeave);
     };
-  }, []);
+  }, [isHoverDevice]);
 
   return (
     <>
-      {/* Desktop Spotlight: Crisp 580px luminous cursor beam */}
+      {/* Desktop Spotlight: Zero React re-renders */}
       {isHoverDevice && (
         <div
+          ref={glowRef}
           aria-hidden="true"
-          className="pointer-events-none fixed inset-0 z-40 transition-opacity duration-200"
-          style={{
-            opacity: isVisible ? 1 : 0,
-            background: `radial-gradient(580px circle at ${pos.x}px ${pos.y}px, rgba(16, 185, 129, 0.18), rgba(139, 92, 246, 0.10), transparent 68%)`,
-          }}
+          className="pointer-events-none fixed inset-0 z-40 opacity-0 transition-opacity duration-200"
         />
       )}
 
-      {/* Mobile / Touch Fallback: Soft top-center ambient halo */}
+      {/* Mobile / Touch Fallback */}
       {!isHoverDevice && (
         <div
           aria-hidden="true"
