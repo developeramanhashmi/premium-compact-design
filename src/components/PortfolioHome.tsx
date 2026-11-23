@@ -75,8 +75,10 @@ export function PortfolioHome() {
             bio: profileData.bio || prev.bio,
             github: profileData.github || prev.github,
             email: profileData.email || prev.email,
+            whatsapp: profileData.whatsapp || prev.whatsapp,
           }));
         }
+
 
         if (projRes.data && projRes.data.length > 0) {
           const mapped: Project[] = projRes.data.map((p: any) => ({
@@ -442,7 +444,7 @@ export function PortfolioHome() {
 
                 <div className="pt-1">
                   <a
-                    href="mailto:amanalam0353@gmail.com"
+                    href={`mailto:${profile.email}`}
                     className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-neutral-950/60 px-3 py-1.5 font-mono text-xs text-neutral-300 hover:border-primary/40 hover:text-white transition"
                   >
                     <Mail className="size-3 text-primary" />
