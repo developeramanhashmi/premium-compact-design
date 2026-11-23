@@ -170,12 +170,19 @@
     border-color: var(--color-border);
   }
 
+  html, body {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: clip;
+  }
+
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
     font-family: var(--font-sans);
   }
 }
+
 
 html { scroll-behavior: smooth; }
 button, a { -webkit-tap-highlight-color: transparent; }
