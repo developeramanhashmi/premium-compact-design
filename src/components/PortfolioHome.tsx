@@ -1,5 +1,3 @@
-import { EducationExperienceTimeline } from "./EducationExperienceTimeline";
-import { VisitorCounterBadge } from "./VisitorCounterBadge";
 import React, { useEffect, useState } from "react";
 import { Header } from "./Header";
 import { Footer } from "./Footer";
@@ -9,31 +7,30 @@ import { SpotlightGlow } from "./SpotlightGlow";
 import { CodeShowcase } from "./CodeShowcase";
 import { ProjectDetailModal } from "./ProjectDetailModal";
 import { TechHeartbeatHUD } from "./TechHeartbeatHUD";
-import { PORTFOLIO_DATA, Project, Testimonial } from "@/data/portfolioData";
-import { FloatingWhatsApp } from "./FloatingWhatsApp";
-import { Star, Quote, MessageSquareQuote, Sparkles } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
+import { EducationExperienceTimeline } from "./EducationExperienceTimeline";
+import { VisitorCounterBadge } from "./VisitorCounterBadge";
 import { ThreeDProjectShowcase } from "./ThreeDProjectShowcase";
 import { ClientTrustTestimonials } from "./ClientTrustTestimonials";
+import { FloatingWhatsApp } from "./FloatingWhatsApp";
+import { PORTFOLIO_DATA, Project, Testimonial } from "@/data/portfolioData";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
 import { 
   Github, 
+  Linkedin,
   ArrowUpRight, 
   Award, 
-  GraduationCap, 
-  Briefcase, 
   Mail, 
   CheckCircle2,
   Loader2,
-  Terminal
+  Terminal,
+  MessageCircle
 } from "lucide-react";
 
 export function PortfolioHome() {
-  const [activeFilter, setActiveFilter] = useState<string>("All");
   const [activeRole, setActiveRole] = useState(0);
   const [isTerminalOpen, setIsTerminalOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
-
 
   // Dynamic state loaded from Supabase with instant static fallback
   type PortfolioProfile = typeof PORTFOLIO_DATA.profile & { whatsapp?: string };
@@ -49,7 +46,6 @@ export function PortfolioHome() {
   const [formSent, setFormSent] = useState(false);
   const [formError, setFormError] = useState("");
 
-  const categories = ["All", "DEVGRONIX Work", "Data Analysis", "Dashboards", "Web Development"];
   const roles = ["Data Analyst", "Software Developer", "Frontend Developer", "Founder at DEVGRONIX"];
 
   // 1. Fetch live DB content on load (Admin updates instantly sync here)
@@ -74,11 +70,11 @@ export function PortfolioHome() {
             badge: profileData.badge || prev.badge,
             bio: profileData.bio || prev.bio,
             github: profileData.github || prev.github,
+            linkedin: profileData.linkedin || prev.linkedin,
             email: profileData.email || prev.email,
             whatsapp: profileData.whatsapp || prev.whatsapp,
           }));
         }
-
 
         if (projRes.data && projRes.data.length > 0) {
           const mapped: Project[] = projRes.data.map((p: any) => ({
@@ -98,7 +94,7 @@ export function PortfolioHome() {
           setSkills(skillRes.data);
         }
 
-        if (eduRes.data) {
+        if (eduRes.data && eduRes.data.length > 0) {
           setEducationAndExperience(eduRes.data.map((item: any) => ({
             id: String(item.id),
             type: item.type,
@@ -110,7 +106,7 @@ export function PortfolioHome() {
           })));
         }
 
-        if (certRes.data) {
+        if (certRes.data && certRes.data.length > 0) {
           setCertificates(certRes.data.map((c: any) => ({
             id: String(c.id),
             tag: c.tag,
@@ -118,13 +114,6 @@ export function PortfolioHome() {
             desc: c.description || c.desc || "",
             href: c.href,
           })));
-        }
-
-        if (profRes.data && (profRes.data as any).whatsapp) {
-          setProfile((prev: any) => ({
-            ...prev,
-            whatsapp: (profRes.data as any).whatsapp,
-          }));
         }
 
         if (testiRes.data && testiRes.data.length > 0) {
@@ -206,20 +195,14 @@ export function PortfolioHome() {
       if (data.success) {
         setFormSent(true);
       } else {
-        // Agar Web3Forms quota issue ho, tab bhi Supabase me message safely save ho chuka hai
         setFormSent(true);
       }
     } catch {
-      // Supabase insertion already completed
       setFormSent(true);
     } finally {
       setIsSubmitting(false);
     }
   };
-
-  const filteredProjects = activeFilter === "All" 
-    ? projects 
-    : projects.filter(p => p.tag === activeFilter);
 
   return (
     <div id="top" className="min-h-screen bg-neutral-950 text-neutral-100 selection:bg-primary/20 selection:text-primary">
@@ -270,9 +253,16 @@ export function PortfolioHome() {
                 </kbd>
               </button>
 
-              <a href={profile.github} target="_blank" rel="noopener noreferrer" className="inline-flex size-9 items-center justify-center rounded-full border border-border bg-card/70 text-muted-foreground transition hover:border-primary/50 hover:text-foreground" aria-label="GitHub">
-                <Github className="size-4" />
-              </a>
+              {profile.github && (
+                <a href={profile.github} target="_blank" rel="noopener noreferrer" className="inline-flex size-9 items-center justify-center rounded-full border border-border bg-card/70 text-muted-foreground transition hover:border-primary/50 hover:text-foreground" aria-label="GitHub">
+                  <Github className="size-4" />
+                </a>
+              )}
+              {profile.linkedin && (
+                <a href={profile.linkedin} target="_blank" rel="noopener noreferrer" className="inline-flex size-9 items-center justify-center rounded-full border border-border bg-card/70 text-muted-foreground transition hover:border-primary/50 hover:text-foreground" aria-label="LinkedIn">
+                  <Linkedin className="size-4" />
+                </a>
+              )}
               <Button asChild variant="secondary" size="sm" className="rounded-full px-4">
                 <a href="https://devgronix.com" target="_blank" rel="noopener noreferrer">DEVGRONIX <ArrowUpRight /></a>
               </Button>
@@ -302,7 +292,6 @@ export function PortfolioHome() {
 
       {/* ================= ABOUT & EDUCATION / EXPERIENCE ================= */}
       <section id="about" className="py-20 border-b border-white/5 relative overflow-hidden">
-        {/* Subtle background ambient glow */}
         <div className="pointer-events-none absolute -left-20 top-1/4 h-72 w-72 rounded-full bg-primary/5 blur-3xl" />
         <div className="pointer-events-none absolute -right-20 bottom-1/4 h-72 w-72 rounded-full bg-violet-500/5 blur-3xl" />
 
@@ -327,7 +316,7 @@ export function PortfolioHome() {
         </div>
       </section>
 
-      {/* ================= PROJECTS GRID ================= */}
+      {/* ================= PROJECTS 3D SHOWCASE ================= */}
       <section id="projects" className="py-20 border-b border-white/5 relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <ThreeDProjectShowcase
@@ -339,7 +328,6 @@ export function PortfolioHome() {
 
       {/* ================= CLIENT TRUST & TESTIMONIALS ================= */}
       <ClientTrustTestimonials testimonials={testimonials} />
-
 
       {/* ================= SKILLS ================= */}
       <section id="skills" className="py-20 border-b border-white/5">
@@ -419,7 +407,7 @@ export function PortfolioHome() {
         </div>
       </section>
 
-{/* ================= CONTACT SECTION (COMPACT & PREMIUM) ================= */}
+      {/* ================= CONTACT SECTION (COMPACT & DYNAMIC) ================= */}
       <section id="contact" className="py-14 sm:py-16 relative">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="rounded-2xl border border-white/10 bg-neutral-900/60 p-6 sm:p-8 md:p-10 backdrop-blur-xl relative overflow-hidden shadow-2xl">
@@ -442,7 +430,7 @@ export function PortfolioHome() {
                   <strong className="text-white">DEVGRONIX</strong>.
                 </p>
 
-                <div className="pt-1">
+                <div className="pt-2 flex flex-wrap items-center gap-2">
                   <a
                     href={`mailto:${profile.email}`}
                     className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-neutral-950/60 px-3 py-1.5 font-mono text-xs text-neutral-300 hover:border-primary/40 hover:text-white transition"
@@ -450,6 +438,18 @@ export function PortfolioHome() {
                     <Mail className="size-3 text-primary" />
                     <span>{profile.email}</span>
                   </a>
+
+                  {profile.whatsapp && (
+                    <a
+                      href={`https://wa.me/${profile.whatsapp.replace(/[^0-9]/g, "")}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3 py-1.5 font-mono text-xs text-emerald-300 hover:border-emerald-400/60 hover:text-white transition"
+                    >
+                      <MessageCircle className="size-3 text-emerald-400" />
+                      <span>WhatsApp</span>
+                    </a>
+                  )}
                 </div>
               </div>
 
@@ -522,7 +522,7 @@ export function PortfolioHome() {
       <Footer />
       <DevTerminal isOpen={isTerminalOpen} onClose={() => setIsTerminalOpen(false)} />
       <ProjectDetailModal project={selectedProject} onClose={() => setSelectedProject(null)} />
-      <FloatingWhatsApp {...(profile.whatsapp ? { phoneNumber: profile.whatsapp } : {})} />
+      <FloatingWhatsApp phoneNumber={profile.whatsapp} />
     </div>
   );
 }
