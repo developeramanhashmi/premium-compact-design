@@ -19,8 +19,16 @@ export function NetworkNodesCanvas() {
     if (!ctx) return;
 
     let animationFrameId: number;
+    let isVisible = true;
     let width = (canvas.width = canvas.offsetWidth);
     let height = (canvas.height = canvas.offsetHeight);
+
+    const isMobile = window.innerWidth < 768;
+    const nodeCount = isMobile ? 22 : 50;
+    const connectionDistance = isMobile ? 80 : 120;
+    const mouseConnectionDistance = 130;
+
+    let mouse = { x: -1000, y: -1000, active: false };
 
     const handleResize = () => {
       if (!canvas) return;
@@ -29,16 +37,8 @@ export function NetworkNodesCanvas() {
       initNodes();
     };
 
-    window.addEventListener("resize", handleResize);
-
-    const isMobile = window.innerWidth < 768;
-    const nodeCount = isMobile ? 28 : 55;
-    const connectionDistance = isMobile ? 85 : 125;
-    const mouseConnectionDistance = 140;
-
-    let mouse = { x: -1000, y: -1000, active: false };
-
     const handleMouseMove = (e: MouseEvent) => {
+      if (!isVisible) return;
       const rect = canvas.getBoundingClientRect();
       mouse.x = e.clientX - rect.left;
       mouse.y = e.clientY - rect.top;
@@ -51,10 +51,12 @@ export function NetworkNodesCanvas() {
       mouse.y = -1000;
     };
 
+    window.addEventListener("resize", handleResize, { passive: true });
+
     const parent = canvas.parentElement;
     if (parent) {
-      parent.addEventListener("mousemove", handleMouseMove);
-      parent.addEventListener("mouseleave", handleMouseLeave);
+      parent.addEventListener("mousemove", handleMouseMove, { passive: true });
+      parent.addEventListener("mouseleave", handleMouseLeave, { passive: true });
     }
 
     const colors = ["rgba(16, 185, 129, 0.7)", "rgba(139, 92, 246, 0.6)", "rgba(6, 182, 212, 0.6)"];
@@ -66,9 +68,9 @@ export function NetworkNodesCanvas() {
         nodes.push({
           x: Math.random() * width,
           y: Math.random() * height,
-          vx: (Math.random() - 0.5) * 0.5,
-          vy: (Math.random() - 0.5) * 0.5,
-          radius: Math.random() * 1.5 + 1.2,
+          vx: (Math.random() - 0.5) * 0.4,
+          vy: (Math.random() - 0.5) * 0.4,
+          radius: Math.random() * 1.4 + 1.1,
           color: colors[Math.floor(Math.random() * colors.length)] ?? "rgba(16, 185, 129, 0.7)",
         });
       }
@@ -77,6 +79,8 @@ export function NetworkNodesCanvas() {
     initNodes();
 
     const render = () => {
+      if (!isVisible) return;
+
       ctx.clearRect(0, 0, width, height);
 
       // Update and draw nodes
@@ -121,7 +125,7 @@ export function NetworkNodesCanvas() {
           const mdist = Math.sqrt(mdx * mdx + mdy * mdy);
 
           if (mdist < mouseConnectionDistance) {
-            const mAlpha = (1 - mdist / mouseConnectionDistance) * 0.45;
+            const mAlpha = (1 - mdist / mouseConnectionDistance) * 0.42;
             ctx.beginPath();
             ctx.moveTo(node.x, node.y);
             ctx.lineTo(mouse.x, mouse.y);
@@ -135,9 +139,29 @@ export function NetworkNodesCanvas() {
       animationFrameId = requestAnimationFrame(render);
     };
 
-    render();
+    // Pause canvas completely when scrolled out of view
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0];
+        if (entry && entry.isIntersecting) {
+          if (!isVisible) {
+            isVisible = true;
+            cancelAnimationFrame(animationFrameId);
+            animationFrameId = requestAnimationFrame(render);
+          }
+        } else {
+          isVisible = false;
+          cancelAnimationFrame(animationFrameId);
+        }
+      },
+      { threshold: 0.05 }
+    );
+
+    observer.observe(canvas);
+    animationFrameId = requestAnimationFrame(render);
 
     return () => {
+      observer.disconnect();
       window.removeEventListener("resize", handleResize);
       if (parent) {
         parent.removeEventListener("mousemove", handleMouseMove);
