@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Testimonial } from "@/data/portfolioData";
 import { 
   Star, 
@@ -9,7 +9,9 @@ import {
   Building2, 
   Sparkles, 
   Globe2,
-  TrendingUp
+  TrendingUp,
+  ChevronLeft,
+  ChevronRight
 } from "lucide-react";
 
 interface ClientTrustTestimonialsProps {
@@ -18,6 +20,9 @@ interface ClientTrustTestimonialsProps {
 
 export function ClientTrustTestimonials({ testimonials }: ClientTrustTestimonialsProps) {
   const [activeCategory, setActiveCategory] = useState<string>("All");
+  const [mobileIndex, setMobileIndex] = useState<number>(0);
+  const [isPaused, setIsPaused] = useState<boolean>(false);
+  const sliderRef = useRef<HTMLDivElement | null>(null);
 
   const categories = ["All", "DEVGRONIX", "Data Analytics", "Web Architecture"];
 
@@ -65,6 +70,47 @@ export function ClientTrustTestimonials({ testimonials }: ClientTrustTestimonial
         (t.company && t.company.toLowerCase().includes(activeCategory.toLowerCase()))
       );
 
+  // Smooth mobile horizontal slider scroll handler
+  const scrollToIndex = (index: number) => {
+    if (!sliderRef.current) return;
+    const container = sliderRef.current;
+    const cardWidth = container.offsetWidth * 0.88;
+    container.scrollTo({
+      left: index * (cardWidth + 16),
+      behavior: "smooth",
+    });
+    setMobileIndex(index);
+  };
+
+  // Auto-slide on mobile right-to-left every 3.8s
+  useEffect(() => {
+    if (isPaused || filtered.length <= 1) return;
+
+    const timer = setInterval(() => {
+      // Check if on mobile/small screen
+      if (window.innerWidth < 640) {
+        setMobileIndex((prev) => {
+          const next = (prev + 1) % filtered.length;
+          scrollToIndex(next);
+          return next;
+        });
+      }
+    }, 3800);
+
+    return () => clearInterval(timer);
+  }, [isPaused, filtered.length]);
+
+  // Sync index on manual touch swipe
+  const handleScroll = () => {
+    if (!sliderRef.current) return;
+    const container = sliderRef.current;
+    const cardWidth = container.offsetWidth * 0.88 + 16;
+    const newIndex = Math.round(container.scrollLeft / cardWidth);
+    if (newIndex !== mobileIndex && newIndex >= 0 && newIndex < filtered.length) {
+      setMobileIndex(newIndex);
+    }
+  };
+
   return (
     <section id="testimonials" className="py-14 sm:py-20 border-b border-white/5 relative overflow-hidden bg-neutral-950/40">
       {/* Ambient background glows */}
@@ -97,7 +143,7 @@ export function ClientTrustTestimonials({ testimonials }: ClientTrustTestimonial
           </div>
         </div>
 
-        {/* Trust & Performance Badges Bar (Mobile Responsive Grid) */}
+        {/* Trust & Performance Badges Bar */}
         <div className="grid min-w-0 grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-4 mb-8 sm:mb-12">
           <div className="min-w-0 rounded-2xl border border-white/10 bg-white/[0.03] p-3 sm:p-4 backdrop-blur-md hover:border-cyan-400/40 transition">
             <div className="flex items-center justify-between text-cyan-400 mb-1.5 sm:mb-2">
@@ -136,13 +182,17 @@ export function ClientTrustTestimonials({ testimonials }: ClientTrustTestimonial
           </div>
         </div>
 
-        {/* Filter Tabs (Horizontal Scroll Safe) */}
+        {/* Filter Tabs */}
         <div className="flex min-w-0 max-w-full items-center gap-2 overflow-x-auto no-scrollbar py-1 mb-8">
           {categories.map((cat) => (
             <button
               key={cat}
               type="button"
-              onClick={() => setActiveCategory(cat)}
+              onClick={() => {
+                setActiveCategory(cat);
+                setMobileIndex(0);
+                if (sliderRef.current) sliderRef.current.scrollLeft = 0;
+              }}
               className={`px-3 py-1.5 rounded-full text-[11px] sm:text-xs font-mono transition-all duration-200 border whitespace-nowrap shrink-0 ${
                 activeCategory === cat
                   ? "bg-cyan-500/15 border-cyan-400/60 text-cyan-300 shadow-[0_0_12px_rgba(56,189,248,0.25)]"
@@ -154,12 +204,20 @@ export function ClientTrustTestimonials({ testimonials }: ClientTrustTestimonial
           ))}
         </div>
 
-        {/* 3D Glassmorphic Testimonials Grid */}
-        <div className="grid min-w-0 gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {/* Testimonials: Mobile Smooth Horizontal Slider & Desktop Grid */}
+        <div 
+          ref={sliderRef}
+          onScroll={handleScroll}
+          onTouchStart={() => setIsPaused(true)}
+          onTouchEnd={() => setIsPaused(false)}
+          onMouseEnter={() => setIsPaused(true)}
+          onMouseLeave={() => setIsPaused(false)}
+          className="flex sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 overflow-x-auto sm:overflow-visible no-scrollbar snap-x snap-mandatory -mx-4 px-4 sm:mx-0 sm:px-0 py-1"
+        >
           {filtered.map((t) => (
             <div
               key={t.id}
-              className="relative min-w-0 max-w-full overflow-hidden group rounded-2xl sm:rounded-3xl border border-white/10 bg-gradient-to-b from-white/[0.08] via-white/[0.02] to-black/60 p-4 sm:p-6 backdrop-blur-xl flex flex-col justify-between hover:border-cyan-400/40 hover:shadow-[0_15px_35px_rgba(56,189,248,0.18)] transition-all duration-300"
+              className="relative w-[85vw] max-w-[340px] sm:w-auto shrink-0 snap-center min-w-0 overflow-hidden group rounded-2xl sm:rounded-3xl border border-white/10 bg-gradient-to-b from-white/[0.08] via-white/[0.02] to-black/60 p-5 sm:p-6 backdrop-blur-xl flex flex-col justify-between hover:border-cyan-400/40 hover:shadow-[0_15px_35px_rgba(56,189,248,0.18)] transition-all duration-300"
             >
               {/* Background Quote Watermark */}
               <Quote className="pointer-events-none absolute right-3 sm:right-5 bottom-12 sm:bottom-16 size-16 sm:size-24 text-white/[0.03] rotate-12 transition-transform group-hover:scale-110" />
@@ -219,6 +277,44 @@ export function ClientTrustTestimonials({ testimonials }: ClientTrustTestimonial
             </div>
           ))}
         </div>
+
+        {/* Mobile Slide Indicator Dots & Arrows */}
+        {filtered.length > 1 && (
+          <div className="flex sm:hidden items-center justify-between mt-4 px-1">
+            <div className="flex items-center gap-1.5">
+              {filtered.map((_, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  onClick={() => scrollToIndex(i)}
+                  aria-label={`Slide ${i + 1}`}
+                  className={`h-1.5 rounded-full transition-all duration-300 ${
+                    mobileIndex === i ? "w-6 bg-cyan-400" : "w-1.5 bg-white/20"
+                  }`}
+                />
+              ))}
+            </div>
+
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => scrollToIndex((mobileIndex - 1 + filtered.length) % filtered.length)}
+                aria-label="Previous testimonial"
+                className="size-7 rounded-full border border-white/10 bg-white/5 flex items-center justify-center text-neutral-300 hover:text-white"
+              >
+                <ChevronLeft className="size-3.5" />
+              </button>
+              <button
+                type="button"
+                onClick={() => scrollToIndex((mobileIndex + 1) % filtered.length)}
+                aria-label="Next testimonial"
+                className="size-7 rounded-full border border-white/10 bg-white/5 flex items-center justify-center text-neutral-300 hover:text-white"
+              >
+                <ChevronRight className="size-3.5" />
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </section>
   );
