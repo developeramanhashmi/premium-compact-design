@@ -1126,14 +1126,24 @@ function AdminPage() {
                 />
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-2">
                 <div>
                   <label className="block text-xs font-mono text-neutral-400 mb-1">Public Email</label>
                   <input
                     type="email"
                     value={profile.email}
                     onChange={(e) => setProfile({ ...profile, email: e.target.value })}
-                    className="w-full px-3 py-2 rounded-lg border border-white/10 bg-neutral-900 text-xs text-white"
+                    className="w-full px-3 py-2 rounded-lg border border-white/10 bg-neutral-900 text-xs text-white focus:border-cyan-400 outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-mono text-neutral-400 mb-1">WhatsApp &amp; Phone</label>
+                  <input
+                    type="text"
+                    placeholder="+919334000000"
+                    value={profile.whatsapp || ""}
+                    onChange={(e) => setProfile({ ...profile, whatsapp: e.target.value })}
+                    className="w-full px-3 py-2 rounded-lg border border-white/10 bg-neutral-900 text-xs text-white focus:border-cyan-400 outline-none"
                   />
                 </div>
                 <div>
@@ -1142,7 +1152,7 @@ function AdminPage() {
                     type="text"
                     value={profile.github || ""}
                     onChange={(e) => setProfile({ ...profile, github: e.target.value })}
-                    className="w-full px-3 py-2 rounded-lg border border-white/10 bg-neutral-900 text-xs text-white"
+                    className="w-full px-3 py-2 rounded-lg border border-white/10 bg-neutral-900 text-xs text-white focus:border-cyan-400 outline-none"
                   />
                 </div>
                 <div>
@@ -1151,7 +1161,7 @@ function AdminPage() {
                     type="text"
                     value={profile.linkedin || ""}
                     onChange={(e) => setProfile({ ...profile, linkedin: e.target.value })}
-                    className="w-full px-3 py-2 rounded-lg border border-white/10 bg-neutral-900 text-xs text-white"
+                    className="w-full px-3 py-2 rounded-lg border border-white/10 bg-neutral-900 text-xs text-white focus:border-cyan-400 outline-none"
                   />
                 </div>
               </div>
