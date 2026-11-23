@@ -39,19 +39,20 @@ export function EducationExperienceTimeline({ items }: Props) {
 
   return (
     <div className="space-y-10">
-      {/* Category Filter Pills */}
+      {/* Category Filter Pills (Mobile Responsive) */}
       <div className="flex flex-wrap items-center justify-between gap-4 border-b border-white/5 pb-6">
-        <div className="flex items-center gap-2 p-1 rounded-xl border border-white/10 bg-neutral-900/60 backdrop-blur-md">
+        <div className="grid grid-cols-3 w-full sm:w-auto sm:flex sm:items-center gap-1 sm:gap-2 p-1 rounded-xl border border-white/10 bg-neutral-900/60 backdrop-blur-md">
           <button
             type="button"
             onClick={() => setActiveFilter("all")}
-            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-mono font-medium transition-all ${
+            className={`flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-3.5 py-1.5 rounded-lg text-[11px] sm:text-xs font-mono font-medium transition-all ${
               activeFilter === "all"
                 ? "bg-primary text-neutral-950 font-bold shadow-lg shadow-primary/20"
                 : "text-neutral-400 hover:text-white hover:bg-white/5"
             }`}
           >
-            <span>All Milestones</span>
+            <span className="hidden sm:inline">All Milestones</span>
+            <span className="sm:hidden inline">All</span>
             <span className={`text-[10px] px-1.5 py-0.2 rounded-full ${
               activeFilter === "all" ? "bg-neutral-950/30 text-neutral-950" : "bg-white/10 text-neutral-300"
             }`}>
@@ -62,27 +63,27 @@ export function EducationExperienceTimeline({ items }: Props) {
           <button
             type="button"
             onClick={() => setActiveFilter("education")}
-            className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-mono font-medium transition-all ${
+            className={`flex items-center justify-center gap-1 sm:gap-1.5 px-2 sm:px-3.5 py-1.5 rounded-lg text-[11px] sm:text-xs font-mono font-medium transition-all ${
               activeFilter === "education"
                 ? "bg-primary text-neutral-950 font-bold shadow-lg shadow-primary/20"
                 : "text-neutral-400 hover:text-white hover:bg-white/5"
             }`}
           >
-            <GraduationCap className="size-3.5" />
-            <span>Academic ({eduCount})</span>
+            <GraduationCap className="size-3 sm:size-3.5 shrink-0" />
+            <span className="truncate">Academic ({eduCount})</span>
           </button>
 
           <button
             type="button"
             onClick={() => setActiveFilter("experience")}
-            className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-mono font-medium transition-all ${
+            className={`flex items-center justify-center gap-1 sm:gap-1.5 px-2 sm:px-3.5 py-1.5 rounded-lg text-[11px] sm:text-xs font-mono font-medium transition-all ${
               activeFilter === "experience"
                 ? "bg-primary text-neutral-950 font-bold shadow-lg shadow-primary/20"
                 : "text-neutral-400 hover:text-white hover:bg-white/5"
             }`}
           >
-            <Briefcase className="size-3.5" />
-            <span>Industry ({expCount})</span>
+            <Briefcase className="size-3 sm:size-3.5 shrink-0" />
+            <span className="truncate">Industry ({expCount})</span>
           </button>
         </div>
 
